@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>محرك محاكاة الدولة v16.7</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{max-width:100%;margin:0;padding:0}
+img,svg,table{max-width:100%}
+:root{--ac:#7aa7c7;--line:#2a3a58;--txt:#e9eef5;--mut:#93a1b8;--card:#141c33;--dark:#0e1626;--btn:#22345a}
+body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:var(--txt);min-height:100vh;background:#0d1322;overflow-x:hidden}
+.bg{position:fixed;top:0;right:0;bottom:0;left:0;z-index:-3;background:radial-gradient(600px 360px at 85% 0%,rgba(50,100,180,.16),rgba(50,100,180,0) 70%),radial-gradient(560px 340px at 5% 100%,rgba(80,170,240,.10),rgba(80,170,240,0) 70%),#0b1220}
+.glow{display:none}
+.glass{background:linear-gradient(135deg,rgba(44,68,112,.88),rgba(24,36,64,.88));border:1px solid rgba(140,190,235,.28);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18)}
+.glass{background:linear-gradient(135deg,rgba(44,68,112,.88),rgba(24,36,64,.88));border:1px solid rgba(140,190,235,.28);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18)}
+.wrap{width:100%;max-width:1180px;margin-left:auto;margin-right:auto;padding:12px 10px 120px}
+.top{position:sticky;top:8px;z-index:30;display:flex;gap:8px;align-items:center;padding:8px 10px;margin-bottom:10px;flex-wrap:wrap;max-width:100%;overflow:hidden;background:linear-gradient(135deg,rgba(52,80,128,.92),rgba(28,42,74,.92));border:1px solid rgba(140,190,235,.3);border-radius:18px;box-shadow:0 10px 28px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22)}
+.top>div:nth-child(2){min-width:0;flex:1 1 110px}
+.top h1{margin:0;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.top small{color:var(--mut);font-size:.68rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.timebar{display:flex;align-items:center;gap:4px;background:var(--dark);border:1px solid var(--line);border-radius:999px;padding:3px 5px;flex-wrap:wrap;max-width:100%;overflow:hidden}
+.flag{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:#2a3a55;flex-shrink:0}
+.tbtn{width:28px;height:28px;min-width:28px;border-radius:50%;border:none;cursor:pointer;font-size:12px;font-weight:900;background:#fff;color:#111}
+.tbtn.play{background:var(--ac);color:#fff;font-size:13px}
+.tbtn.pause{background:#c9a227;color:#fff}
+.spd{border:none;border-radius:999px;padding:5px 7px;font-weight:800;cursor:pointer;background:transparent;color:#fff;font-size:.65rem}
+.spd.on{background:var(--ac);color:#fff}
+.nextbtn{border:none;cursor:pointer;font-weight:800;border-radius:999px;padding:6px 10px;background:var(--ac);color:#fff;font-size:.68rem}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:999px;background:var(--dark);border:1px solid var(--line);font-size:.66rem;font-weight:700;max-width:100%}
+.grid,.ctl,.seg,.pickgrid,.mapmodes{display:flex;flex-wrap:wrap;gap:8px;width:100%;max-width:100%}
+.grid>*,.ctl>*,.seg>*,.pickgrid>*,.mapmodes>*{min-width:0;max-width:100%}
+.g2>*{flex:1 1 100%}.g3>*{flex:1 1 100%}.g4>*{flex:1 1 45%}
+.ctl,.seg,.pickgrid{gap:7px}
+.ctl>*{flex:1 1 45%}.seg>*{flex:1 1 45%}.pickgrid>*{flex:1 1 100%}.mapmodes>*{flex:1 1 45%}
+.card{padding:12px;overflow:hidden;width:100%}
+h2.sec{margin:2px 2px 8px;font-size:.9rem;color:#d7e0ee}
+.kpi{padding:10px 6px;text-align:center;min-width:0}
+.kpi b{font-size:1.1rem;display:block;overflow-wrap:break-word}.kpi span{font-size:.66rem;color:var(--mut)}
+.bar{height:7px;background:var(--dark);border-radius:99px;overflow:hidden;margin-top:5px;border:1px solid var(--line);width:100%}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--ac)}
+.pick{min-width:0;max-width:100%}
+.pick{padding:12px;cursor:pointer;text-align:center;min-width:0}
+.pick .ic{font-size:28px;display:block;margin-bottom:4px}
+.pick h3{margin:3px 0;font-size:.85rem}.pick p{margin:0;font-size:.7rem;color:var(--mut)}
+.pick.active{outline:2px solid var(--ac);background:#1a2742}
+.btn{border:1px solid rgba(140,190,235,.30);cursor:pointer;font-weight:700;border-radius:12px;padding:9px 11px;font-size:.76rem;background:linear-gradient(180deg,rgba(64,100,150,.95),rgba(36,60,102,.95));color:#fff;min-width:0;max-width:100%;overflow-wrap:break-word;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.btn:active{transform:scale(.96)}
+.btn.p{background:linear-gradient(180deg,rgba(74,116,168,.95),rgba(47,91,143,.95));color:#fff;border-color:rgba(140,190,235,.45)}
+.btn.g{background:#22385c;color:#fff}
+.btn.r{background:#402028;color:#ffb3b3;border-color:#6b3443}
+.btn.gold{background:linear-gradient(180deg,#e2b83e,#c29226);color:#111;border:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 14px rgba(217,169,46,.35)}
+.ctl button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 5px;font-size:.72rem;line-height:1.3;min-width:0;max-width:100%;overflow:hidden}
+.ctl button i{font-size:18px;font-style:normal}
+.row{display:flex;gap:7px;flex-wrap:wrap;align-items:center;max-width:100%}
+.row>*{min-width:0;max-width:100%}
+.seg{background:rgba(13,24,46,.85);border:1px solid rgba(140,190,235,.22);border-radius:14px;padding:3px;overflow:hidden}
+.seg button{border:none;background:transparent;color:#fff;padding:7px 4px;border-radius:9px;font-weight:700;cursor:pointer;font-size:.7rem;min-width:0;overflow-wrap:break-word;word-break:break-word}
+.seg button.on{background:var(--ac);color:#fff}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts>*{flex:1 1 30%}
+.opts button{border:1px solid rgba(140,190,235,.25);background:rgba(70,110,165,.35);color:#fff;padding:8px 6px;border-radius:10px;font-size:.7rem;font-weight:700;cursor:pointer;min-width:0;overflow-wrap:break-word}
+.opts button.on{background:var(--ac);border-color:var(--ac);color:#fff;box-shadow:0 0 12px rgba(122,167,199,.4)}
+input[type=text]{width:100%;max-width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--dark);color:#fff;font-size:.9rem;outline:none}
+input[type=range]{width:100%;max-width:100%;display:block;height:22px;margin:0}
+select{background:var(--dark);color:#fff;border:1px solid var(--line);border-radius:10px;padding:8px;width:100%;max-width:100%}
+label.lbl{font-size:.72rem;color:var(--mut);display:flex;justify-content:space-between;gap:4px;flex-wrap:wrap;margin:7px 0 2px}
+table{width:100%;border-collapse:collapse;font-size:.76rem}th,td{padding:7px 4px;text-align:center;border-bottom:1px solid var(--line);overflow-wrap:break-word}th{color:var(--ac);font-size:.68rem}
+#parl{overflow-x:auto;overflow-y:hidden;width:100%}
+#parl table{min-width:540px}
+.page{display:none;width:100%}.page.show{display:block}
+.dock{position:fixed;left:6px;right:6px;bottom:8px;margin-left:auto;margin-right:auto;max-width:1170px;z-index:40;background:linear-gradient(135deg,rgba(52,80,128,.92),rgba(28,42,74,.92));border:1px solid rgba(140,190,235,.3);border-radius:18px;box-shadow:0 10px 32px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22);display:flex;gap:6px;padding:6px 8px;overflow-x:auto;overflow-y:hidden}
+.dock button{min-width:58px;flex:1 0 auto;border:1px solid rgba(140,190,235,.25);background:rgba(70,110,165,.45);color:#fff;padding:5px 2px;border-radius:12px;cursor:pointer;font-size:.58rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px}
+.dock button span.ic{font-size:17px;width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:var(--dark)}
+.dock button.on{background:var(--ac);border-color:var(--ac)}
+.badge{padding:2px 7px;border-radius:99px;font-size:.64rem;font-weight:700;background:var(--dark);border:1px solid var(--line);max-width:100%;overflow-wrap:break-word}
+.ok{border-color:#5a8a6a}.warn{border-color:#c9a227}.bad{border-color:#a25a5a}
+.logitem{padding:7px 9px;border-radius:10px;background:var(--dark);border:1px solid var(--line);margin:5px 0;font-size:.74rem;overflow-wrap:break-word;word-break:break-word;max-width:100%}
+.evt{border-right:3px solid var(--ac)}
+.setup-hero{text-align:center;padding:22px 14px;margin-bottom:12px}
+.setup-hero h1{margin:6px 0;font-size:1.5rem}
+.stepnum{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ac);color:#fff;font-weight:800;font-size:.75rem}
+.hidden{display:none!important}
+.mapwrap{display:flex;flex-wrap:wrap;gap:8px;width:100%;max-width:100%}.mapwrap>*{flex:1 1 100%;min-width:0;max-width:100%}
+svg.map{display:block;width:100%;height:auto;background:var(--dark);border-radius:14px;border:1px solid var(--line)}
+.zone{cursor:pointer;stroke:#8fa3c0;stroke-width:1.4}
+.zone:hover{stroke:#fff;stroke-width:2.4}
+.zone.sel{stroke:#fff;stroke-width:3}
+.zlabel{font-size:11px;font-weight:800;fill:#fff;pointer-events:none}
+.mapmodes{margin-bottom:8px}
+.mapmodes button{border:1px solid var(--line);background:var(--btn);color:#fff;padding:6px 10px;border-radius:99px;font-size:.66rem;font-weight:700;cursor:pointer;min-width:0;overflow-wrap:break-word}
+.mapmodes button.on{color:#fff}
+.mm-dev.on{background:#3d6a8a}.mm-unr.on{background:#8a3d3d}.mm-loy.on{background:#7a5a8a}.mm-sec.on{background:#3d7a72}.mm-pop.on{background:#8a6a3d}.mm-eco.on{background:#3d7a4a}.mm-inf.on{background:#5a5a8a}
+.mov{position:fixed;top:0;right:0;bottom:0;left:0;z-index:100;background:#05080f;display:none;align-items:center;justify-content:center;padding:12px;overflow-y:auto}
+.mov.show{display:flex}
+.modal{width:100%;max-width:620px;max-height:92vh;overflow-y:auto;overflow-x:hidden;margin:auto;padding:18px;position:relative;background:linear-gradient(135deg,rgba(50,78,126,.96),rgba(26,40,72,.96));border:1px solid rgba(140,190,235,.32);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.22)}
+.modal h2{margin:0 0 2px;font-size:1rem;padding-left:38px}.modal .sub{color:var(--mut);font-size:.74rem;margin-bottom:10px;line-height:1.6;overflow-wrap:break-word}
+.modal .x{position:absolute;top:12px;left:12px;width:30px;height:30px;min-width:30px;border-radius:50%;border:none;background:var(--btn);color:#fff;font-size:14px;cursor:pointer}
+.msec{background:var(--dark);border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;overflow-wrap:break-word}
+.msec h4{margin:0 0 6px;font-size:.78rem;color:var(--ac)}
+.mrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.mrow .btn{flex:1 1 40%;min-width:0;overflow:hidden}
+.kv{display:flex;justify-content:space-between;gap:8px;font-size:.74rem;padding:4px 0;border-bottom:1px dashed var(--line)}
+.kv b{text-align:left;overflow-wrap:break-word}
+.toast{position:fixed;top:8px;left:12px;right:12px;margin-left:auto;margin-right:auto;max-width:480px;z-index:200;background:#0a0f1e;border:1px solid var(--ac);padding:7px 14px;border-radius:99px;font-size:.74rem;display:none;text-align:center}
+.statline{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;width:100%}
+.statline .pill{font-size:.68rem}
+#treasury,#budgetAlloc,#govInfo,#cultInfo,#diploInfo,#focusBox,#intelBox,#intelReport,#mediaInfo,#resBars,#pops,#events{overflow-wrap:break-word;word-break:break-word;max-width:100%}
+label.lbl{flex-wrap:wrap;gap:4px}
+@media(max-width:560px){
+.wrap{padding:10px 8px 120px}
+.card{padding:10px}
+.kpi b{font-size:1rem}
+.btn{padding:8px 9px;font-size:.72rem}
+.ctl button{font-size:.68rem;padding:9px 4px}
+.top h1{font-size:.8rem}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
+<div class="toast" id="toast"></div>
+<div class="mov" id="mOv" onclick="if(event.target===this)closeM()"><div class="glass modal" id="mBox"></div></div>
+
+<div class="wrap" id="setupScreen">
+<div class="glass setup-hero"><div style="font-size:44px">🏛️</div><h1>محرك محاكاة الدولة v16.7</h1><p style="color:var(--mut);font-size:.8rem">صمم دولتك • اختر نظامك • حدد توجهك • ابدأ الحكم</p><p style="font-size:.72rem;color:var(--mut)">📱 عرض شاشتك: <b id="vw">...</b></p></div>
+<div class="glass card"><h2 class="sec"><span class="stepnum">1</span> معلومات الدولة</h2>
+<div class="grid g2"><div><label class="lbl">اسم الدولة</label><input type="text" id="sName" value="الجمهورية الجديدة"></div><div><label class="lbl">اسم القائد</label><input type="text" id="sLeader" value="القائد المؤسس"></div></div>
+<label class="lbl">الجغرافيا</label><div class="pickgrid" id="geoGrid"></div></div>
+<div class="glass card"><h2 class="sec"><span class="stepnum">2</span> نظام الحكم</h2><div class="pickgrid" id="govGrid"></div></div>
+<div class="glass card"><h2 class="sec"><span class="stepnum">3</span> التوجه الوطني</h2><div class="pickgrid" id="focusGrid"></div></div>
+<div class="glass card" style="text-align:center"><p id="setupSummary" style="color:var(--mut);font-size:.8rem"></p><button class="btn gold" style="font-size:1rem;padding:12px 36px" onclick="startGame()">🚀 بدء الحكم</button></div>
+<div class="glass card"><h2 class="sec">💾 سجلات ألعابي — تقدمك محفوظ تلقائياً</h2><div id="savesList"></div><div class="row"><button class="btn" onclick="refreshSaves()">🔄 تحديث القائمة</button><button class="btn r" onclick="wipeSaves()">🗑️ مسح كل السجلات</button></div></div>
+</div>
+
+<div class="wrap hidden" id="gameScreen">
+<div class="glass top">
+<div class="flag">🏛️</div>
+<div style="flex:1;min-width:110px"><h1 id="tName"></h1><small id="tSub"></small></div>
+<div class="timebar">
+<button class="tbtn play" id="playBtn" onclick="togglePlay()" title="تشغيل/إيقاف">▶</button>
+<button class="spd" id="sp1" onclick="setSpeed(1)">1x</button>
+<button class="spd" id="sp2" onclick="setSpeed(2)">2x</button>
+<button class="spd" id="sp3" onclick="setSpeed(3)">3x</button>
+<button class="nextbtn" onclick="nextMonth()">⏭️ شهر</button>
+</div>
+<span class="pill">💰 <span id="tRes"></span></span>
+<span class="pill">❤️ <span id="tSat"></span></span>
+<span class="pill" id="tDate"></span>
+<span class="pill" title="نسخة الواجهة">v16.7 ✅</span>
+<button class="btn" onclick="saveGame(true)">💾 حفظ</button>
+<button class="btn" onclick="backToSetup()">⚙️</button>
+</div>
+
+<section class="page" id="p-home">
+<div class="glass card"><h2 class="sec">📌 المؤشرات العليا</h2><div class="statline" id="topStats"></div></div>
+<div class="grid g4" id="kpis"></div>
+<div class="grid g2">
+<div class="glass card"><h2 class="sec">⚡ الموارد</h2><div id="resBars"></div>
+<div class="row" style="margin-top:8px"><button class="btn p" onclick="openM('energyDeal')">⚡ صفقة طاقة</button><button class="btn p" onclick="openM('grainDeal')">🌾 استيراد قمح</button><button class="btn p" onclick="openM('techPark')">💻 مدينة تقنية</button></div></div>
+<div class="glass card"><h2 class="sec">🔥 أحداث الشهر</h2><div id="events"></div></div>
+</div>
+<div class="glass card"><h2 class="sec">⚡ مراسيم رئاسية — اضغط أي زر لنافذة موسعة</h2><div class="ctl" id="homeCtl"></div></div>
+<div class="glass card"><h2 class="sec">📊 الشرائح POPs</h2><div id="pops"></div></div>
+</section>
+
+<section class="page" id="p-gov">
+<div class="glass card"><h2 class="sec">🗳️ البرلمان — 100 مقعد (7 أحزاب)</h2><div id="parl"></div>
+<h2 class="sec" style="margin-top:10px">🤝 تحكمات برلمانية — كل زر يفتح نافذة موسعة</h2><div class="ctl" id="govCtl"></div></div>
+<div class="grid g2"><div class="glass card"><h2 class="sec">🏛️ الحكومة والقضاء</h2><div id="govInfo"></div>
+<div class="row"><button class="btn p" onclick="openM('antiCorrGov')">🧹 نزاهة</button><button class="btn p" onclick="openM('eGov')">💻 حكومة إلكترونية</button><button class="btn p" onclick="openM('decent')">🏘️ لامركزية</button><button class="btn p" onclick="openM('civilServ')">👔 إصلاح خدمة مدنية</button></div></div>
+<div class="glass card"><h2 class="sec">🎯 التوجه الوطني</h2><div id="focusBox"></div><div class="seg" id="focusSeg" style="margin-top:6px"></div></div></div>
+</section>
+
+<section class="page" id="p-eco">
+<div class="grid g4" id="ecoKpi"></div>
+<div class="grid g2">
+<div class="glass card"><h2 class="sec">💸 ضرائب وإنفاق — نسبة % + مبلغ $ حقيقي</h2><div id="taxSliders"></div></div>
+<div class="glass card"><h2 class="sec">🏦 خزينة — كل أداة تفتح نافذة موسعة</h2><div id="treasury"></div><div class="ctl" id="ecoCtl" style="margin-top:8px"></div></div></div>
+<div class="glass card"><h2 class="sec">📦 التخصيص</h2><div id="budgetAlloc"></div></div>
+</section>
+
+<section class="page" id="p-reg">
+<div class="glass card"><h2 class="sec">🗺️ الخريطة التفاعلية</h2>
+<div class="mapmodes" id="mapModes"></div>
+<div class="mapwrap">
+<div><svg class="map" viewBox="0 0 400 300" id="mapSvg">
+<rect class="zone" data-r="0" x="150" y="110" width="100" height="80" rx="14" fill="#3d5a80"/>
+<polygon class="zone" data-r="1" points="150,110 90,60 180,40 220,90" fill="#3d5a80"/>
+<polygon class="zone" data-r="2" points="150,190 110,260 230,270 250,190" fill="#3d5a80"/>
+<polygon class="zone" data-r="3" points="250,110 340,80 360,180 250,190" fill="#3d5a80"/>
+<polygon class="zone" data-r="4" points="90,60 20,110 60,190 150,190 150,110" fill="#3d5a80"/>
+<polygon class="zone" data-r="5" points="180,40 260,20 340,80 250,110 220,90" fill="#3d5a80"/>
+<text class="zlabel" x="172" y="152">🏙️ العاصمة</text><text class="zlabel" x="110" y="85">🏭 الشمال</text><text class="zlabel" x="150" y="235">🌾 الجنوب</text><text class="zlabel" x="280" y="145">🚢 الشرق</text><text class="zlabel" x="45" y="140">⛰️ الغرب</text><text class="zlabel" x="225" y="60">🏘️ الوسط</text>
+</svg><div class="logitem" id="mapLegend"></div></div>
+<div class="glass card" id="regDetail" style="background:rgba(0,0,0,.2)"></div>
+</div></div>
+<div class="glass card"><h2 class="sec">🚧 مشاريع قومية — كل زر يفتح نافذة موسعة</h2><div class="ctl" id="regCtl"></div></div>
+</section>
+
+<section class="page" id="p-sec">
+<div class="grid g2">
+<div class="glass card"><h2 class="sec">🕵️ المخابرات</h2><div id="intelBox"></div>
+<label class="lbl">الميزانية <b id="intelBVal"></b></label><input type="range" min="20" max="500" id="intelBudget" oninput="setIntel(this.value)">
+<label class="lbl">الرقابة الرقمية <b id="v_surv"></b></label><input type="range" min="0" max="100" id="r_surv" oninput="setEco('surv',this.value)">
+<div class="seg" style="margin-top:6px"><button onclick="setIntelEff(0)">ضعيفة</button><button onclick="setIntelEff(1)">متوسطة</button><button onclick="setIntelEff(2)">احترافية</button></div></div>
+<div class="glass card"><h2 class="sec">⚔️ عمليات — كل زر يفتح نافذة موسعة</h2><div class="ctl" id="secCtl"></div><div id="intelReport" style="margin-top:8px"></div></div></div>
+</section>
+
+<section class="page" id="p-army">
+<div class="grid g3" id="armyKpi"></div>
+<div class="glass card"><h2 class="sec">🎖️ الجيش — كل زر يفتح نافذة موسعة</h2>
+<label class="lbl">ميزانية الدفاع <b id="defVal"></b></label><input type="range" min="100" max="1400" id="defBudget" oninput="setDef(this.value)">
+<label class="lbl">التجنيد <b id="v_consc"></b></label><input type="range" min="0" max="100" id="r_consc" oninput="setEco('consc',this.value)">
+<div class="ctl" id="armyCtl" style="margin-top:8px"></div></div>
+</section>
+
+<section class="page" id="p-media">
+<div class="grid g2">
+<div class="glass card"><h2 class="sec">📡 الإعلام — كل زر يفتح نافذة موسعة</h2><div class="seg" id="mediaSeg"></div><div class="ctl" id="mediaCtl" style="margin-top:8px"></div></div>
+<div class="glass card"><h2 class="sec">🕌 ثقافة ودين — كل زر يفتح نافذة موسعة</h2>
+<label class="lbl">تقليدي ← → حداثي</label><input type="range" min="0" max="100" id="cultRange" oninput="setCulture(this.value)">
+<div class="ctl" id="cultCtl" style="margin-top:8px"></div><div id="cultInfo"></div></div></div>
+</section>
+
+<section class="page" id="p-diplo">
+<div class="grid g3" id="diploKpi"></div>
+<div class="glass card"><h2 class="sec">🌍 دبلوماسية — كل زر يفتح نافذة موسعة</h2><div class="ctl" id="diploCtl"></div><div id="diploInfo" style="margin-top:8px"></div></div>
+</section>
+
+<section class="page" id="p-log">
+<div class="glass card"><h2 class="sec">📜 السجل</h2>
+<div class="row"><button class="btn" onclick="exportLog()">📋 نسخ</button><button class="btn r" onclick="backToSetup()">♻️ جديدة</button><button class="btn p" onclick="show('home')">🏠 عودة</button></div>
+<div id="fullLog"></div></div>
+</section>
+</div>
+<nav class="glass dock hidden" id="dock"></nav>
+
+<script>
+const GEOS=[{id:"coast",ic:"🌊",t:"ساحلية صناعية",d:"موانئ ومصانع وسهول.",eff:{food:8,raw:5,tech:5,res:1}},{id:"mount",ic:"⛰️",t:"جبلية صناعية",d:"طاقة عالية وتمرد أعلى.",eff:{energy:12,revolt:8,raw:6}},{id:"desert",ic:"🏜️",t:"صحراوية نفطية",d:"طاقة ضخمة وغذاء ضعيف.",eff:{energy:20,food:-12,res:2}},{id:"island",ic:"🏝️",t:"جزر تجارية",d:"تجارة وتقنية عالية.",eff:{tech:12,gdp:3,food:-5}}];
+const GOVS=[{id:"parl",ic:"🗳️",t:"جمهورية برلمانية",d:"شرعية عالية وائتلاف هش.",eff:{sat:5,coal:10}},{id:"pres",ic:"🏛️",t:"جمهورية رئاسية",d:"رئيس قوي وتوازن.",eff:{coup:-5,sat:2}},{id:"mon",ic:"👑",t:"ملكية دستورية",d:"ولاء جيش عالٍ.",eff:{loyal:12,coup:-8}},{id:"trans",ic:"⚙️",t:"مجلس انتقالي",d:"مرونة وخطر أعلى.",eff:{coup:8}}];
+const FOCUS=[{id:"ind",ic:"🏭",t:"نهضة صناعية",d:"نمو وتقنية ومصانع.",eff:{gdp:2,tech:8}},{id:"agri",ic:"🌾",t:"إصلاح زراعي",d:"غذاء وريف.",eff:{food:12,revolt:-8}},{id:"mil",ic:"🎖️",t:"قوة عسكرية",d:"كفاءة وولاء.",eff:{armyEff:10,loyal:8}},{id:"demo",ic:"🕊️",t:"شفافية وديمقراطية",d:"شرعية وغرب.",eff:{west:12,sat:5}},{id:"dig",ic:"💻",t:"تحول رقمي",d:"تقنية وطاقة.",eff:{tech:10,energy:10}}];
+let sel={geo:"coast",gov:"parl",focus:"ind"};
+let S={},timer=null,speed=1,playing=false,mapMode="dev";
+function pickGrid(el,arr,key){const g=document.getElementById(el);g.innerHTML="";arr.forEach(o=>{const d=document.createElement("div");d.className="pick glass"+(sel[key]===o.id?" active":"");d.innerHTML=`<span class="ic">${o.ic}</span><h3>${o.t}</h3><p>${o.d}</p>`;d.onclick=()=>{sel[key]=o.id;pickGrid(el,arr,key);summary();};g.appendChild(d);});}
+function summary(){const g=GEOS.find(x=>x.id===sel.geo),v=GOVS.find(x=>x.id===sel.gov),f=FOCUS.find(x=>x.id===sel.focus);document.getElementById("setupSummary").innerHTML=`دولتك: <b>${document.getElementById("sName").value}</b> — ${g.t} + ${v.t} + ${f.t}`;}
+function baseState(){return{month:1,year:2026,gdp:48,infl:7,unemp:11,budget:320,res:12,debt:8,sat:55,coup:14,revolt:18,energy:65,food:75,raw:60,tech:45,tax:18,customs:10,wages:300,infra:200,health:180,rural:120,def:400,intelB:120,intelEff:1,esub:80,fsub:80,admin:200,rate:8,export:100,surv:40,consc:30,media:1,culture:50,armyEff:62,loyal:70,west:50,east:50,reg:60,coal:72,court:"محايدة",pop:12.4,currency:100,crime:28,parl:{"المحافظون":20,"الليبراليون":18,"اليسار":16,"القوميون":13,"اليمين":9,"الخضر":6,"التجمع المدني":3,"الوسط الديمقراطي":6,"الحركة العمالية":5,"الحزب التقدمي":4},partySat:{"المحافظون":60,"الليبراليون":45,"اليسار":40,"القوميون":38,"اليمين":30,"الخضر":35,"التجمع المدني":32,"الوسط الديمقراطي":40,"الحركة العمالية":33,"الحزب التقدمي":36},coalition:["المحافظون","الليبراليون"],selReg:0,regs:[{n:"العاصمة الكبرى",h:78,p:"3.2M",eco:88,sec:70,loy:65,dev:82,inf:78},{n:"الشمال الصناعي",h:65,p:"1.8M",eco:70,sec:60,loy:70,dev:66,inf:62},{n:"الجنوب الزراعي",h:48,p:"2.4M",eco:42,sec:40,loy:50,dev:40,inf:44},{n:"الشرق الساحلي",h:62,p:"1.1M",eco:62,sec:55,loy:60,dev:56,inf:56},{n:"الغرب الجبلي",h:55,p:"900K",eco:48,sec:45,loy:55,dev:50,inf:48},{n:"الوسط البلدي",h:60,p:"1.5M",eco:56,sec:52,loy:55,dev:56,inf:55}],eventA:"أزمة وقود: مخزون 20 يوماً.",eventB:"الريف الجنوبي يطالب بصندوق دعم.",log:[]};}
+function startGame(){S=baseState();S.name=document.getElementById("sName").value||"الدولة الجديدة";S.leader=document.getElementById("sLeader").value||"القائد";const g=GEOS.find(x=>x.id===sel.geo),v=GOVS.find(x=>x.id===sel.gov),f=FOCUS.find(x=>x.id===sel.focus);S.geo=g.t;S.gov=v.t;S.focus=f.t;S.energy+=(g.eff.energy||0);S.food+=(g.eff.food||0);S.raw+=(g.eff.raw||0);S.tech+=(g.eff.tech||0);S.res+=(g.eff.res||0);S.revolt+=(g.eff.revolt||0);S.sat+=(v.eff.sat||0);S.coal+=(v.eff.coal||0);S.loyal+=(v.eff.loyal||0);S.coup+=(v.eff.coup||0);S.gdp+=(f.eff.gdp||0);log(`تأسيس ${S.name} بقيادة ${S.leader} — ${S.geo} — ${S.gov} — ${S.focus}`);document.getElementById("setupScreen").classList.add("hidden");document.getElementById("gameScreen").classList.remove("hidden");document.getElementById("dock").classList.remove("hidden");buildDock();show("home");setSpeed(1);render();saveAuto();refreshSaves();}
+function backToSetup(){stopT();saveAuto();document.getElementById("gameScreen").classList.add("hidden");document.getElementById("dock").classList.add("hidden");document.getElementById("setupScreen").classList.remove("hidden");refreshSaves();}
+const TABS=[["home","🏠","رئيسية"],["gov","🏛️","حكومة"],["eco","💰","اقتصاد"],["reg","🗺️","أقاليم"],["sec","🕵️","أمن"],["army","🎖️","جيش"],["media","📡","إعلام"],["diplo","🌍","دبلوماسية"],["log","📜","سجل"]];
+function buildDock(){const d=document.getElementById("dock");d.innerHTML="";TABS.forEach(([id,ic,t])=>{const b=document.createElement("button");b.id="tab-"+id;b.innerHTML=`<span class="ic">${ic}</span>${t}`;b.onclick=()=>show(id);d.appendChild(b);});}
+function show(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("show"));document.getElementById("p-"+id).classList.add("show");document.querySelectorAll("#dock button").forEach(b=>b.classList.remove("on"));const t=document.getElementById("tab-"+id);if(t)t.classList.add("on");window.scrollTo({top:0,behavior:"smooth"});}
+function log(t){S.log.unshift(`[شهر ${S.month}/${S.year}] ${t}`);}
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.style.display="block";clearTimeout(e._t);e._t=setTimeout(()=>e.style.display="none",2000);}
+function clamp(){["sat","coup","revolt","unemp","energy","food","raw","tech","armyEff","loyal","west","east","reg","coal","crime","currency"].forEach(k=>{if(S[k]!=null)S[k]=Math.round(Math.max(0,Math.min(200,S[k])));});S.regs.forEach(r=>{["h","eco","sec","loy","dev","inf"].forEach(k=>r[k]=Math.max(5,Math.min(100,Math.round(r[k]))));});}
+function bar(v){return `<div class="bar"><i style="width:${Math.max(0,Math.min(100,v))}%"></i></div>`}
+function stab(){return S.coal>60?["مستقر","ok"]:S.coal>40?["متوتر","warn"]:["على وشك التفكك","bad"];}
+function togglePlay(){playing?stopT():startT();}
+function startT(){playing=true;document.getElementById("playBtn").textContent="⏸";document.getElementById("playBtn").className="tbtn pause";runT();}
+function stopT(){playing=false;if(timer)clearInterval(timer);timer=null;const b=document.getElementById("playBtn");if(b){b.textContent="▶";b.className="tbtn play";}}
+function setSpeed(n){speed=n;[1,2,3].forEach(i=>{const e=document.getElementById("sp"+i);if(e)e.classList.toggle("on",i===n);});if(playing){if(timer)clearInterval(timer);runT();}}
+function runT(){const ms=speed===1?5000:speed===2?2500:1000;timer=setInterval(()=>{nextMonth(true);},ms);}
+function totalSeats(){let t=0;S.coalition.forEach(p=>{if(S.partySat[p]>=30)t+=(S.parl[p]||0);});return t;}
+function chance(p){return Math.random()*100<p;}
+function setEco(k,v){S[k]=+v;render();}
+function setIntel(v){S.intelB=+v;render();}
+function setIntelEff(i){S.intelEff=i;log("هيكلة مخابرات: "+["ضعيفة","متوسطة","احترافية"][i]);render();}
+function setDef(v){S.def=+v;render();}
+function setMedia(i){S.media=i;log("إعلام: "+["حر","مجزأ","موجه","رقابة"][i]);if(i===0){S.west+=5;S.sat-=2;}if(i===3){S.sat-=3;S.tech-=2;}render();}
+function setCulture(v){S.culture=+v;render();}
+function setFocus(id){const f=FOCUS.find(x=>x.id===id);S.focus=f.t;log("توجه: "+f.t);render();}
+function setMapMode(m){mapMode=m;render();}
+function exportLog(){try{navigator.clipboard.writeText(S.log.join("\n"));}catch(e){}toast("تم النسخ");}
+function shuffleParl(){const k=Object.keys(S.parl);let l=100;k.forEach((x,i)=>{if(i===k.length-1)S.parl[x]=l;else{const v=8+Math.floor(Math.random()*10);S.parl[x]=v;l-=v;}});S.coal=55;}
+/* ===== النوافذ الموسعة ===== */
+const MINFO={
+energyDeal:["⚡ صفقة طاقة","استيراد/تصدير الطاقة: اختر الحجم والشريك والمدة ثم نفذ."],grainDeal:["🌾 استيراد قمح","تأمين الغذاء: الكمية والمصدر والاحتياطي."],techPark:["💻 مدينة تقنية","منطقة تقنية: الاستثمار والوظائف والشركاء."],
+parade:["🎖️ عرض عسكري","استعراض القوة: الحجم والتغطية والرسالة."],festival:["🎉 مهرجان وطني","فعالية شعبية: الميزانية والمدن والبرنامج."],curfew:["🌙 حظر تجول","تقييد الحركة: الساعات والنطاق والاستثناءات."],minWage:["💵 الحد الأدنى للأجور","تعديل الأجور: النسبة والقطاعات والتدرج."],jobs:["🏭 توظيف الشباب","تشغيل الشباب: العدد والقطاع والتدريب."],emergency:["🚨 طوارئ","إجراءات استثنائية: المستوى والمدة والرقابة."],amnesty:["🕊️ عفو عام","إطلاق سجناء: النطاق والشروط والمتابعة."],stadium:["🏟️ ملعب وطني","منشأة رياضية: السعة والمدينة والتمويل."],water:["💧 تحلية مياه","محطات تحلية: العدد والمناطق والطاقة."],
+coalTalk:["🤝 مفاوضات ائتلافية","تحسين العلاقات: التنازلات والحقائب والمدة."],proposeLaw:["📜 قانون عادي","مشروع قانون: يحتاج 51 صوتاً من الائتلاف."],amend:["⚖️ تعديل دستوري","تعديل الدستور: يحتاج 67 صوتاً."],earlyElec:["🗳️ انتخابات مبكرة","حل البرلمان: التوقيت والنظام والقوائم."],buyMP:["💼 استمالة نواب","شراء ولاءات: المبلغ والمستهدفون."],referendum:["📮 استفتاء","تصويت شعبي: السؤال والحملة."],courtReform:["🏛️ إصلاح القضاء","تحديث القضاء: العمق والتعيينات."],banParty:["⛔ حل حزب","حل حزب: المسوغ القانوني وموقف المحكمة."],reshuffle:["🔄 تعديل وزاري","تغيير الحقائب: عدد الوزراء والتوازن."],autocratic:["👑 إعلان استبدادي","حكم بمراسيم: ⚠️ خطر ثورة وانقلاب."],antiCorrGov:["🧹 نزاهة","مكافحة الفساد: الشدة والجهات."],eGov:["💻 حكومة إلكترونية","رقمنة الخدمات: النطاق والبوابات."],decent:["🏘️ لامركزية","نقل صلاحيات للأقاليم."],civilServ:["👔 خدمة مدنية","إصلاح التوظيف الحكومي."],
+stimulus:["📈 تحفيز","ضخ مالي: الحجم والقطاعات."],privatize:["🏭 خصخصة","بيع أصول: النسبة والمشترون."],austerity:["📉 تقشف","خفض الإنفاق: الشدة والاستثناءات."],payDebt:["💳 سداد دين","سداد الدين: المبلغ والأولوية."],sovereign:["🏦 صندوق سيادي","استثمار الفوائض: الحجم والأدوات."],tourism:["✈️ سياحة","تنشيط سياحي: الحملات والتأشيرات."],printMoney:["🖨️ طبع نقود","تمويل بالعجز: ⚠️ يرفع التضخم."],tradeZone:["🚢 منطقة حرة","مناطق تجارة: العدد والحوافز."],agriBank:["🌾 بنك زراعي","تمويل المزارعين: رأس المال والفوائد."],oilFund:["🛢️ مزاد طاقة","تراخيص نفط: العدد والشروط."],
+ruralFund:["🌾 صندوق ريفي","دعم القرى: الميزانية والمحاصيل."],hospital:["🏥 مستشفيات","بناء مستشفيات: العدد والمناطق."],roads:["🛣️ طرق","شبكة طرق: الأطوال والأولوية."],capitalProj:["🏙️ مشروع العاصمة","تطوير العاصمة: الحجم والأحياء."],crackdown:["🚔 حملة أمنية","قمع التمرد: الشدة والنطاق."],electrify:["🔌 كهربة","توصيل الكهرباء: القرى والشبكات."],schools:["🏫 مدارس","بناء مدارس: العدد والمناهج."],policeSt:["👮 مراكز شرطة","تعزيز الأمن: العدد والتجهيز."],factZone:["🏭 منطقة صناعية","مناطق صناعية: الحجم والحوافز."],
+spy:["👁️ تنصت","مراقبة المعارضة: النطاق. نسبة النجاح حسب الكفاءة."],fabricate:["🎭 فبركة ملف","افتعال تهمة: التعقيد والمخاطر."],anticorr:["🧹 تطهير فساد","ملاحقة فاسدين: الشدة."],counterCoup:["🛡️ منع انقلاب","تأمين النظام: الإجراءات."],cyber:["💻 دفاع سيبراني","حماية رقمية: المستوى."],border:["🧱 ضبط حدود","تأمين الحدود: النقاط."],cams:["📷 كاميرات","مراقبة ذكية: العدد."],doubleAgent:["🕶️ عميل مزدوج","اختراق: العمق."],arrest:["⛓️ اعتقالات","اعتقالات وقائية: العدد."],whistle:["📢 حماية مبلّغين","حماية الشهود: العدد."],
+raiseArmy:["💰 رواتب وترقيات","تحسين أوضاع الجيش."],drills:["🎯 مناورات","تدريب: الحجم."],honor:["🎖️ تكريم","أوسمة للضباط."],cutArmy:["✂️ خفض دفاع","⚠️ يرفع خطر الانقلاب."],conscript:["🪖 تجنيد","تجنيد: العدد."],airforce:["✈️ سلاح جو","طائرات جديدة."],navy:["🚢 بحرية","سفن جديدة."],missiles:["🚀 صواريخ","دفاع جوي."],milInd:["🏭 تصنيع عسكري","مصانع سلاح."],veterans:["🧓 قدامى","رعاية المحاربين."],purge:["⚡ تطهير قيادات","عزل قيادات: ⚠️ يخفض الولاء."],
+press:["🎤 مؤتمر صحفي","إعلام مباشر: النبرة."],digital:["🌐 استثمار رقمي","بنية رقمية: الحجم."],cinema:["🎬 سينما","دعم الأفلام."],socialReg:["📱 سوشيال","تنظيم المنصات."],shutdown:["🔌 قطع إنترنت","⚠️ يغضب الشعب."],satellite:["🛰️ قمر إعلامي","بث فضائي."],propaganda:["📣 بروباغندا","حملة إعلامية."],freePress:["📰 حرية صحافة","تحرير الإعلام."],
+relLaw:["🕌 قانون ديني","تشريعات دينية: يرضي المحافظين."],libLaw:["🕊️ حريات","تشريعات ليبرالية: ترضي الشباب."],edu:["📚 مناهج","إصلاح التعليم."],clerics:["🧔 مجلس علماء","هيئة دينية."],youth:["🧒 برلمان شباب","تمثيل شبابي."],heritage:["🏺 تراث","حماية آثار."],sportN:["⚽ رياضة","بطولات وملاعب."],censor:["🚫 رقابة فنية","رقابة على الفن."],
+westLoan:["🇺🇸 قرض غربي","قرض مشروط بالشفافية."],eastArms:["🇨🇳 صفقة شرقية","سلاح وطاقة رخيصة مقابل نفوذ."],regPact:["🤝 ميثاق إقليمي","اتفاق جمركي وأمني."],neutral:["⚖️ حياد","توازن بين الكتل."],embassy:["🏛️ سفارات","فتح بعثات جديدة."],tradeW:["📦 تجارة غربية","اتفاق تجاري غربي."],tradeE:["🚂 تجارة شرقية","اتفاق تجاري شرقي."],sanction:["🚫 عقوبات","عقوبات مضادة."],unVote:["🌐 تصويت أممي","موقف في الأمم المتحدة."],aid:["🎁 مساعدات","مساعدات إنسانية."]
+};
+function mSl(id,lb,mn,mx,v,u){return `<label class="lbl">${lb} <b id="${id}_v">${v}${u||""}</b></label><input type="range" min="${mn}" max="${mx}" value="${v}" id="${id}" oninput="document.getElementById('${id}_v').textContent=this.value+'${u||""}';mCost2()">`}
+function mPick(id,btn,v){document.getElementById(id).value=v;const w=btn.parentElement;w.querySelectorAll("button").forEach(b=>b.classList.remove("on"));btn.classList.add("on");mCost2();}
+function mCh(id,lb,opts){return `<label class="lbl">${lb}</label><div class="opts">${opts.map((o,i)=>`<button class="${i===0?'on':''}" onclick="mPick('${id}',this,'${o}')">${o}</button>`).join("")}</div><input type="hidden" id="${id}" value="${opts[0]}">`}
+function mSe(id,lb,opts){return mCh(id,lb,opts);}
+function mBody(id){
+switch(id){
+case "energyDeal":return mSl("m_a","🛢️ حجم الاستيراد (ألف برميل/يوم)",10,500,120,"")+mSe("m_b","🤝 الشريك",["الشرق (رخيص + نفوذ شرقي)","الغرب (غالي + ثقة غربية)","الإقليم (متوسط + علاقات إقليمية)","مزيج متوازن"])+mSe("m_c","⏳ مدة العقد",["3 أشهر تجريبي","سنة كاملة","5 سنوات استراتيجي"]);
+case "grainDeal":return mSl("m_a","🌾 الكمية (ألف طن)",20,800,200,"")+mSe("m_b","🚢 المصدر",["أوكرانيا (رخيص)","أمريكا (موثوق)","الإقليم (سريع)","احتياطي مختلط"])+mSe("m_c","🏚️ التخزين",["توزيع فوري","تخزين استراتيجي 6 أشهر"]);
+case "techPark":return mSl("m_a","💻 حجم الاستثمار",1,10,5,"")+mSe("m_b","🧪 التخصص",["ذكاء اصطناعي","أشباه موصلات","برمجيات حكومية","طاقة نظيفة"])+mSe("m_c","🎓 الشراكة",["جامعات محلية","شركات غربية","شركات شرقية"]);
+case "referendum":return mSe("m_a","❓ سؤال الاستفتاء",["تعديل دستوري","حل البرلمان","قانون مثير للجدل","استقلال القضاء"])+mSl("m_b","📣 ميزانية الحملة",1,10,5,"")+mSe("m_c","📺 التغطية",["إعلام حر","إعلام موجه","تعتيم جزئي"]);
+case "coalTalk":return mSe("m_a","🎯 الحزب المستهدف",Object.keys(S.parl))+mSe("m_b","💼 التنازل المقدم",["حقائب وزارية","ميزانية إضافية","قانون يرضيهم","مناصب إقليمية"])+mSl("m_c","🤝 عدد جولات التفاوض",1,5,2,"");
+case "proposeLaw":return mSe("m_a","📜 نوع القانون",["ضريبي","اجتماعي","أمني","اقتصادي","إداري"])+mSl("m_b","🔥 جرأته",1,10,5,"")+mSe("m_c","⚖️ المسار",["تصويت عادي 51+","مسار مستعجل"]);
+case "amend":return mSe("m_a","📖 المادة المستهدفة",["صلاحيات الرئيس","النظام الانتخابي","الحريات","اللامركزية"])+mSl("m_b","🧱 عمق التعديل",1,10,5,"")+mSe("m_c","🏛️ التحالفات",["إقناع المعارضة","ضغط شعبي","صفقة أحزاب"]);
+case "earlyElec":return mSe("m_a","📅 التوقيت",["بعد 3 أشهر","بعد 6 أشهر","فوري"])+mSe("m_b","🗳️ النظام",["قوائم نسبية","فردي","مختلط"])+mSl("m_c","💰 ميزانية الحملة",1,10,4,"");
+case "buyMP":return mSl("m_a","💼 عدد النواب المستهدف",1,10,3,"")+mSe("m_b","💵 طريقة الاستمالة",["مناصب","مشاريع لدوائرهم","تمويل حملات"]);
+case "courtReform":return mSl("m_a","⚖️ عدد القضاة الجدد",1,15,5,"")+mSe("m_b","📋 المعيار",["الكفاءة","الولاء","توازن"]);
+case "banParty":return mSe("m_a","🎯 الحزب المستهدف",["اليمين","الخضر","التجمع المدني"])+mSe("m_b","📁 المسوغ",["تمويل أجنبي","خطاب كراهية","تزوير"]);
+case "austerity":return mSl("m_a","✂️ شدة الخفض %",5,40,15,"%")+mSe("m_b","🛡️ المجال المستثنى",["رواتب","صحة وتعليم","دفاع","لا استثناء"])+mSe("m_c","⏳ المدة",["3 أشهر","سنة","سنتان"]);
+case "sovereign":return mSl("m_a","🏦 حجم الصندوق",1,10,4,"")+mSe("m_b","📊 الأدوات",["أسهم عالمية","سندات","عقار","تقنية"])+mSe("m_c","👔 الإدارة",["حكومية","خاصة","مختلطة"]);
+case "tourism":return mSl("m_a","✈️ الميزانية",1,10,4,"")+mSe("m_b","🏖️ النوع",["شاطئية","أثرية","علاجية","مؤتمرات"])+mSe("m_c","🛂 التأشيرات",["تسهيل","إعفاء إقليمي","إلكترونية"]);
+case "tradeZone":return mSl("m_a","🚢 عدد المناطق",1,5,2,"")+mSe("m_b","📍 الموقع",["موانئ","حدود","عاصمة"])+mSe("m_c","🎁 الحوافز",["ضريبية","جمركية","عمالة"]);
+case "agriBank":return mSl("m_a","🌾 رأس المال",1,10,4,"")+mSe("m_b","💵 الفائدة",["صفرية","رمزية","سوقية"])+mSe("m_c","👥 المستفيدون",["صغار","تعاونيات","كبار"]);
+case "oilFund":return mSl("m_a","🛢️ التراخيص",1,5,2,"")+mSe("m_b","⛏️ النوع",["نفط","غاز","معادن"])+mSe("m_c","📋 الشروط",["ضرائب عالية","مشاركة أرباح","توظيف محلي"]);
+case "stimulus":return mSl("m_a","💵 حجم الضخ ($B)",1,10,4,"")+mSe("m_b","🏭 القطاع",["صناعة","زراعة","تقنية","مختلط"]);
+case "privatize":return mSl("m_a","🏭 نسبة البيع %",5,60,20,"%")+mSe("m_b","🤝 المشتري",["مستثمر محلي","أجنبي غربي","أجنبي شرقي"]);
+case "payDebt":return mSl("m_a","💳 المبلغ ($B)",1,5,2,"")+mSe("m_b","🎯 الأولوية",["صندوق النقد","دائنون محليون","سندات"]);
+case "printMoney":return mSl("m_a","🖨️ الكمية",1,10,3,"")+mSe("m_b","🎯 الغطاء",["احتياطي ذهب","بدون غطاء (تضخم أعلى)"]);
+case "westLoan":return mSl("m_a","💵 المبلغ ($B)",1,10,4,"")+mSe("m_b","📋 الشروط",["شفافية + إعلام حر","إصلاح ضريبي","خصخصة جزئية"]);
+case "eastArms":return mSl("m_a","🚀 حجم الصفقة",1,10,4,"")+mSe("m_b","🎁 المقابل",["قاعدة لوجستية","حقوق تنقيب","تصويت أممي مؤيد"]);
+case "ruralFund":return mSl("m_a","🌾 الميزانية",1,10,5,"")+mSe("m_b","🌱 المحصول المدعوم",["قمح","خضار","أعلاف","مختلط"])+mSe("m_c","🚜 الشكل",["أسمدة","قروض ميسرة","طرق زراعية"]);
+case "roads":return mSl("m_a","🛣️ الأطوال (كم)",100,2000,500,"")+mSe("m_b","🎯 الأولوية",["ريف-مدينة","موانئ","حدود"]);
+case "capitalProj":return mSl("m_a","🏙️ الحجم",1,10,5,"")+mSe("m_b","🏘️ الحي",["تجاري","سكني","إداري"]);
+case "spy":return mSe("m_a","🎯 الهدف",["المعارضة","حزب محدد","نقابات","إعلام"])+mSl("m_b","👁️ النطاق",1,10,5,"");
+case "fabricate":return mSe("m_a","🎯 المستهدف",["زعيم معارض","حزب منافس","صحفي"])+mSl("m_b","🎭 التعقيد",1,10,5,"");
+case "anticorr":return mSe("m_a","🏢 الجهة",["الجمارك","البلديات","الوزارات"])+mSl("m_b","🔥 الشدة",1,10,5,"");
+case "counterCoup":return mSe("m_a","🛡️ الإجراء",["تدوير قيادات","وحدة حماية","مراقبة اتصالات"])+mSl("m_b","📡 الشدة",1,10,5,"");
+case "raiseArmy":return mSl("m_a","💰 نسبة الزيادة %",5,40,15,"%")+mSe("m_b","🎖️ الفئة",["ضباط","جنود","متقاعدون"]);
+case "drills":return mSl("m_a","🎯 حجم المناورات",1,10,5,"")+mSe("m_b","🌍 المكان",["حدود","ساحل","صحراء"]);
+case "airforce":return mSl("m_a","✈️ عدد الطائرات",2,24,8,"")+mSe("m_b","🛠️ النوع",["مقاتلات","نقل","مسيرات"]);
+case "missiles":return mSl("m_a","🚀 المنظومات",1,10,4,"")+mSe("m_b","🛡️ النوع",["دفاع جوي","بالستي","ساحلي"]);
+case "press":return mSe("m_a","🎤 النبرة",["مطمئنة","حازمة","شفافة"])+mSl("m_b","⏱️ المدة (دقيقة)",15,120,45,"");
+case "shutdown":return mSl("m_a","🔌 المدة (ساعة)",1,72,12,"")+mSe("m_b","🌍 النطاق",["عاصمة فقط","كل الدولة"]);
+case "relLaw":return mSl("m_a","🕌 درجة التشدد",1,10,5,"")+mSe("m_b","📖 المجال",["تعليم","قضاء","حريات عامة"]);
+case "libLaw":return mSl("m_a","🕊️ النطاق",1,10,5,"")+mSe("m_b","👥 الفئة",["شباب","مرأة","إعلام"]);
+case "curfew":return mSl("m_a","🌙 الساعات",4,14,8,"")+mSe("m_b","🗺️ النطاق",["عاصمة","مدن كبرى","كل الدولة"]);
+case "minWage":return mSl("m_a","💵 نسبة الزيادة %",5,50,15,"%")+mSe("m_b","🏭 القطاع",["عام","خاص","كلاهما"]);
+case "jobs":return mSl("m_a","👷 عدد الوظائف (ألف)",5,200,40,"")+mSe("m_b","🔧 القطاع",["صناعة","تقنية","خدمات"]);
+case "hospital":return mSl("m_a","🏥 العدد",1,10,3,"")+mSe("m_b","🗺️ المنطقة",["ريف","بلديات","عاصمة"]);
+case "schools":return mSl("m_a","🏫 العدد",1,10,4,"")+mSe("m_b","📚 المرحلة",["ابتدائي","ثانوي","مهني"]);
+case "crackdown":return mSl("m_a","🚔 الشدة",1,10,5,"")+mSe("m_b","🗺️ النطاق",["إقليم محدد","كل الأرياف"]);
+case "tradeW":return mSl("m_a","📦 الحجم",1,10,4,"")+mSe("m_b","🎯 السلعة",["تقنية","غذاء","دواء"]);
+case "tradeE":return mSl("m_a","🚂 الحجم",1,10,4,"")+mSe("m_b","🎯 السلعة",["طاقة","سلاح","مواد خام"]);
+default:return mSl("m_a","🎚️ شدة القرار",1,10,5,"")+mSe("m_b","🗺️ النطاق",["كل الدولة","العاصمة فقط","الأقاليم","الريف فقط"]);
+}}
+function openM(id){const inf=MINFO[id]||["⚙️ قرار",id];const box=document.getElementById("mBox");
+box.innerHTML=`<button class="x" onclick="closeM()">✕</button><h2>${inf[0]}</h2><div class="sub">${inf[1]}</div>
+<div class="msec"><h4>🎛️ تحكم خاص بهذا القرار</h4>${mBody(id)}
+<h4 style="margin-top:8px">🎚️ الحجم العام <b id="m_v">5</b>/10</h4><input type="range" min="1" max="10" value="5" id="m_r" oninput="document.getElementById('m_v').textContent=this.value;mCost2()">
+<h4 style="margin-top:8px">⏱️ التنفيذ</h4>${mCh("m_pace","سرعة التنفيذ",["فوري (أثر أكبر + كلفة أعلى)","تدريجي 3 أشهر (أثر متوازن)"])}
+${MGO[id]?mCh("m_fund","💰 التمويل",["خزينة الدولة","قرض تنموي","شريك خاص"])+mCh("m_over","🔍 الرقابة",["تدقيق لاحق","تنفيذ مباشر"]):""}${mMore(id)}
+<div class="kv"><span>التكلفة التقديرية</span><b id="m_cost">—</b></div><div class="kv"><span id="m_fx_t">الأثر المتوقع</span><b id="m_fx">—</b></div></div>
+<div class="mrow">${mFoot(id)}</div>`;
+document.getElementById("mOv").classList.add("show");mCost2(id);document.body.style.overflow="hidden";}
+const MGO={
+energyDeal:[["📥 استيراد عاجل","p"],["📜 عقد طويل الأمد","p"],["📤 تصدير الفائض","g"]],
+grainDeal:[["🌾 استيراد عاجل","p"],["🏚️ تخزين استراتيجي","g"]],
+techPark:[["🏗️ بناء المرحلة الأولى","p"],["🤝 شراكة أجنبية","p"]],
+parade:[["🎖️ عرض مهيب","p"],["🎺 عرض متواضع","g"]],
+festival:[["🎉 مهرجان وطني شامل","p"],["🎪 فعاليات محلية","g"]],
+curfew:[["🌙 حظر شامل","r"],["🏙️ حظر المدن فقط","p"]],
+minWage:[["💵 رفع شامل","g"],["📊 رفع تدريجي","p"]],
+jobs:[["🏭 توظيف حكومي","p"],["💼 دعم القطاع الخاص","g"]],
+emergency:[["🚨 طوارئ شاملة","r"],["🏥 طوارئ صحية","p"]],
+amnesty:[["🕊️ عفو شامل","g"],["📋 عفو مشروط","p"]],
+stadium:[["🏟️ ملعب أولمبي","p"],["⚽ ملاعب أحياء","g"]],
+water:[["💧 محطة تحلية كبرى","p"],["🌊 سدود صغيرة","g"]]};
+function mX(id,lb,opts){return `<label class="lbl">${lb}</label><div class="opts">${opts.map((o,i)=>{const lab=o.split("|")[0];return `<button class="${i===0?'on':''}" onclick="mPick('${id}',this,'${o}')">${lab}</button>`}).join("")}</div><input type="hidden" id="${id}" value="${opts[0]}">`}
+function applyFx(list){list.forEach(t=>{const m=String(t).trim().match(/^([+-])([A-Za-z]+)(\d*)=([\d.]+)$/);if(!m)return;const sgn=m[1]==="+"?1:-1;const k=m[2],idx=m[3],v=parseFloat(m[4])*sgn;if(k==="r"&&idx!==""){S.regs[+idx].h+=v;}else if(S[k]!=null&&typeof S[k]==="number")S[k]+=v;});}
+const MX={
+energyDeal:[["m_e1","🔋 الاحتياطي الاستراتيجي",["تعبئة الاحتياطي|+energy=2|-res=0.05","بيع مباشر للسوق|+res=0.06|-energy=1"]],["m_e2","🌱 حصة المتجددة",["تقليدي|+gdp=0.1","20% متجددة|+tech=0.5|-res=0.03","40% تحول أخضر|+tech=1|-res=0.08|+energy=1"]]],
+grainDeal:[["m_e1","🚜 دعم المزارعين",["بدون دعم|+food=0","أسمدة مدعومة|-res=0.05|+food=1|+r2=1","قروض ميسرة|-res=0.08|+food=2"]],["m_e2","🏚️ سياسة التخزين",["توزيع فوري|+sat=1","تخزين 3 أشهر|-res=0.03|-revolt=1","احتياطي سنة|-res=0.08|-revolt=2|+sat=1"]]],
+techPark:[["m_e1","🎓 الشراكة العلمية",["جامعات محلية|+tech=0.5","شركات غربية|+tech=1|+west=1|-res=0.04","شركات شرقية|+tech=0.8|+east=1"]],["m_e2","👷 التوظيف",["خبراء أجانب|+tech=0.5|-res=0.05","تدريب شباب محلي|-unemp=0.5|+sat=1"]]],
+parade:[["m_e1","📺 التغطية",["بث محلي|+sat=0.5","بث دولي|+west=1|+loyal=1|-res=0.03","بدون تغطية|+loyal=0.5"]],["m_e2","🎖️ المشاركون",["الحرس الجمهوري|+loyal=1","كل التشكيلات|+armyEff=1|+loyal=1|-res=0.04","الشرطة العسكرية|-crime=1|+sat=0.5"]]],
+festival:[["m_e1","🎪 البرنامج",["فني|+sat=1|+culture=1","رياضي|+sat=1|+reg=1","تراثي|+sat=0.5|+culture=2"]],["m_e2","🏙️ المدن المستضيفة",["العاصمة فقط|+r0=1","كل المدن|+sat=1|-res=0.05","الأرياف|+r2=2|+sat=1|-res=0.04"]]],
+curfew:[["m_e1","🚑 الاستثناءات",["طبية فقط|-crime=0.5","عمال وطوارئ|+sat=0.5|-crime=0.3","لا استثناء|-crime=1|-sat=1"]],["m_e2","👮 جهة التنفيذ",["الجيش|+coup=1|-crime=1","الشرطة|-crime=0.7","لجان شعبية|+sat=0.5|-crime=0.3"]]],
+minWage:[["m_e1","🏭 شمولية الزيادة",["العام فقط|+sat=0.5","العام والخاص|+sat=1|+infl=0.3","تدريجي قطاعي|+sat=0.7"]],["m_e2","📊 آلية التمويل",["من الخزينة|-res=0.05","من أرباب العمل|+gdp=0.1","مختلط|+sat=0.3|-res=0.02"]]],
+jobs:[["m_e1","🔧 قطاع التوظيف",["صناعة|-unemp=0.7|+gdp=0.1","تقنية|-unemp=0.4|+tech=0.5","خدمات|-unemp=0.5|+sat=0.5"]],["m_e2","🎓 التدريب",["تدريب مكثف|-res=0.04|-unemp=0.3|+tech=0.2","تدريب أساسي|-res=0.02|-unemp=0.1","توظيف مباشر|-unemp=0.4|-sat=0.2"]]],
+emergency:[["m_e1","🏥 القطاعات المشمولة",["الكل|-revolt=1|-sat=0.5","الصحة والغذاء|-revolt=0.5|+food=0.5","الأمن فقط|-revolt=0.8|-sat=0.3"]],["m_e2","⚖️ الرقابة القضائية",["بإشراف القضاء|+coal=1|-revolt=0.3","عسكرية خالصة|-revolt=0.5|-coal=1","لجان طوارئ|-revolt=0.4"]]],
+amnesty:[["m_e1","👥 الفئات",["سياسيون|+sat=0.8|+west=1","جنائيون خفيفون|+sat=0.4|+crime=0.3","الكل|+sat=1|+crime=0.8"]],["m_e2","📋 المتابعة",["مراقبة لاحقة|-crime=0.3|-res=0.02","إدماج وتوظيف|-unemp=0.2|+sat=0.3|-res=0.04","بدون متابعة|+crime=0.4"]]],
+stadium:[["m_e1","🏟️ المرافق",["ملعب فقط|+sat=0.5","مدينة رياضية|+sat=1|-res=0.06|+gdp=0.1","ملعب وفنادق|+sat=0.8|+gdp=0.15|-res=0.04"]],["m_e2","🎟️ التذاكر",["مدعومة|+sat=0.5|-res=0.02","رمزية|+sat=0.3","استثمارية|+res=0.05|-sat=0.2"]]],
+water:[["m_e1","💧 مصدر الطاقة",["شبكة عامة|-energy=1","طاقة شمسية|+tech=0.3|-res=0.04|+energy=0.5","ديزل|-res=0.03|+food=0.3"]],["m_e2","🚰 التوزيع",["المدن أولا|+r0=1|+sat=0.3","الريف أولا|+r2=1.5|+sat=0.5","متوازن|+food=0.3"]]],
+coalTalk:[["m_e1","📦 حزمة الإغراء",["حقائب وزارية|+coal=1|-res=0.05","ميزانية إضافية|-res=0.08|+coal=2","وعود تشريعية|+coal=1"]],["m_e2","⏱️ مدة الاتفاق",["شهر|+coal=0.5","6 أشهر|+coal=1|-res=0.03","سنة كاملة|+coal=2|-res=0.06"]]],
+proposeLaw:[["m_e1","📜 مجال القانون",["اقتصادي|+gdp=0.2","اجتماعي|+sat=0.5","أمني|-crime=0.5|-sat=0.2"]],["m_e2","🤝 حشد الأصوات",["توافق|+coal=1","ضغط شعبي|+sat=0.3|-coal=0.5","صفقة أحزاب|-res=0.05|+coal=2"]]],
+amend:[["m_e1","📖 عمق التعديل",["شكلي|+sat=0.3","جوهري|+sat=0.5|-coal=1","شامل|+sat=1|-coal=2"]],["m_e2","⚖️ التعامل مع القضاء",["تشاور مسبق|+coal=1","فرض الأمر الواقع|-coal=1|+revolt=1"]]],
+earlyElec:[["m_e1","📅 التوقيت",["فوري|-coal=1|+sat=0.3","3 أشهر|+sat=0.5","6 أشهر|+coal=1"]],["m_e2","💰 تمويل الحملة",["حكومي|-res=0.1|+coal=1","ذاتي|+sat=0.2","خاص|+res=0.05|-sat=0.3"]]],
+referendum:[["m_e1","❓ صياغة السؤال",["محايد|+sat=0.5","موجه|+sat=0.8|-west=1","تقني|+tech=0.2"]],["m_e2","📺 الحملة",["إعلام حر|+west=1|+sat=0.3","إعلام موجه|+sat=0.5","بدون حملة|-sat=0.2"]]],
+stimulus:[["m_e1","🎯 التوجيه",["دعم الأجور|+sat=0.5|-unemp=0.2","دعم الشركات|+gdp=0.3","بنية تحتية|+gdp=0.1|+infra=20"]],["m_e2","⏱️ الصرف",["فوري|+gdp=0.2|+infl=0.3","على دفعات|+gdp=0.15","مشروط بإصلاحات|+gdp=0.2|+coal=1|-res=0.02"]]],
+privatize:[["m_e1","🏭 الأصول",["مصانع|+res=0.15|+gdp=0.1","اتصالات|+res=0.2|+tech=0.3","أراض|+res=0.1"]],["m_e2","🛡️ الضمانات",["سقف أسعار|+sat=0.3","حصة دولة|+gdp=0.05","بدون ضمانات|+res=0.08|-sat=0.3"]]],
+austerity:[["m_e1","✂️ المجال",["رواتب|-sat=0.5|+res=0.08","مشاريع|-gdp=0.2|+res=0.1","دعم السلع|-food=0.5|+res=0.06|+revolt=1"]],["m_e2","📢 التبرير",["شفافية|+sat=0.3","ضرورة وطنية|+coal=0.5","بدون شرح|-sat=0.4"]]],
+payDebt:[["m_e1","🏦 الدائن",["صندوق النقد|+west=1|-res=0.02","محلي|+coal=0.5","سندات|+gdp=0.1"]],["m_e2","📉 الأثر",["تخفيض الفوائد|-infl=0.2","تحسين التصنيف|+west=0.5|+gdp=0.1","احتياطي أمان|+res=0.03"]]],
+sovereign:[["m_e1","📊 المحفظة",["أسهم|+gdp=0.15","سندات آمنة|+res=0.03","عقار|+gdp=0.1|+sat=0.2"]],["m_e2","🌍 السوق",["محلي|+coal=0.5","غربي|+west=1","شرقي|+east=1"]]],
+tourism:[["m_e1","✈️ التسويق",["خليجي|+res=0.06","أوروبي|+west=0.5|+res=0.08","إقليمي|+reg=1|+res=0.04"]],["m_e2","🏨 البنية",["فنادق|+gdp=0.1|-res=0.03","مواصلات|+gdp=0.08","ترميم آثار|+culture=1|+sat=0.3|-res=0.03"]]],
+printMoney:[["m_e1","🖨️ الغطاء",["ذهب|+infl=0.3","سندات|+infl=0.5|+debt=0.1","بدون غطاء|+infl=0.8|-currency=2"]],["m_e2","🎯 التوجيه",["رواتب|+sat=0.5","مشاريع|+gdp=0.2","سداد ديون|-debt=0.2"]]],
+tradeZone:[["m_e1","🚢 الحوافز",["إعفاء ضريبي|+gdp=0.15|-tax=1","إعفاء جمركي|+gdp=0.12|-customs=1","أراض مجانية|+gdp=0.1|-res=0.03"]],["m_e2","👷 العمالة",["محلية|+sat=0.4|-unemp=0.3","مختلطة|+gdp=0.1","أجنبية|+gdp=0.15|-sat=0.2"]]],
+agriBank:[["m_e1","🌾 القروض",["موسمية|+food=0.8","معدات|+food=0.5|+tech=0.2","توسع|+food=1|-res=0.03"]],["m_e2","💵 الفائدة",["صفرية|+sat=0.5|-res=0.04","رمزية|+sat=0.3","سوقية|+res=0.03"]]],
+oilFund:[["m_e1","🛢️ التراخيص",["نفط|+res=0.12","غاز|+res=0.1|+energy=1","معادن|+res=0.08|+raw=1"]],["m_e2","📋 الشروط",["ضرائب عالية|+res=0.05","مشاركة أرباح|+gdp=0.1","توظيف محلي|+sat=0.4|-unemp=0.2"]]]};
+function mMore(id){const d=MX[id];if(!d)return "";return `<h4 style="margin-top:8px">➕ تحكمات إضافية تخصصية</h4>`+d.map(e=>mX(e[0],e[1],e[2])).join("");}
+function mFoot(id){if(MGO[id])return MGO[id].map(([t,c],i)=>`<button class="btn ${c}" onclick="mGo('${id}',${i})">${t}</button>`).join("")+`<button class="btn" onclick="closeM()">إلغاء</button>`;return `<button class="btn gold" onclick="mConfirm('${id}')">✅ تنفيذ القرار</button><button class="btn" onclick="closeM()">إلغاء</button>`;}
+function mGo(id,i){const v=+document.getElementById("m_r").value;const pace=(document.getElementById("m_pace")||{}).value||"";const k=pace.startsWith("فوري")?1.25:0.8;const V=Math.max(1,Math.round(v*k));const H=(t)=>{log(t+" [حجم "+V+"]");toast(t);};
+if(id==="energyDeal"){if(i===0){S.energy+=V*2;S.res-=V*0.08;S.sat+=1;H("استيراد طاقة عاجل");}else if(i===1){S.energy+=V*1.5;S.debt+=V*0.1;S.sat+=1;H("عقد طاقة طويل الأمد");}else{S.res+=V*0.12;S.energy-=V;S.east+=1;H("تصدير فائض الطاقة");}}
+else if(id==="grainDeal"){if(i===0){S.food+=V*2;S.res-=V*0.07;H("استيراد قمح عاجل");}else{S.food+=V;S.res-=V*0.1;S.revolt-=V*0.5;H("مخزون قمح استراتيجي");}}
+else if(id==="techPark"){if(i===0){S.tech+=V*1.6;S.res-=V*0.12;S.gdp+=V*0.15;S.unemp-=V*0.2;H("بناء المدينة التقنية");}else{S.tech+=V*2;S.west+=V*0.4;S.res-=V*0.06;S.debt+=V*0.05;H("شراكة تقنية أجنبية");}}
+else if(id==="parade"){if(i===0){S.loyal+=V*0.8;S.sat+=V*0.5;S.west-=1;S.res-=V*0.06;H("عرض عسكري مهيب");}else{S.loyal+=V*0.4;S.sat+=V*0.3;S.res-=V*0.02;H("عرض عسكري متواضع");}}
+else if(id==="festival"){if(i===0){S.sat+=V*0.8;S.res-=V*0.08;S.culture+=2;H("مهرجان وطني شامل");}else{S.sat+=V*0.4;S.res-=V*0.03;S.regs[5].h+=V*0.3;H("فعاليات محلية");}}
+else if(id==="curfew"){if(i===0){S.crime-=V;S.sat-=V*0.5;S.revolt+=V*0.2;H("حظر تجول شامل");}else{S.crime-=V*0.5;S.sat-=V*0.2;H("حظر تجول بالمدن");}}
+else if(id==="minWage"){if(i===0){S.sat+=V*0.7;S.infl+=V*0.15;S.wages+=V*10;H("رفع شامل للأجور");}else{S.sat+=V*0.4;S.infl+=V*0.05;S.wages+=V*5;H("رفع تدريجي للأجور");}}
+else if(id==="jobs"){if(i===0){S.unemp-=V*0.5;S.res-=V*0.08;S.sat+=V*0.3;H("توظيف حكومي مباشر");}else{S.unemp-=V*0.4;S.gdp+=V*0.12;S.res-=V*0.05;H("دعم توظيف القطاع الخاص");}}
+else if(id==="emergency"){if(i===0){S.revolt-=V*1.6;S.sat-=V*0.7;S.court="معارضة";H("حالة طوارئ شاملة");}else{S.revolt-=V*0.8;S.food+=V*0.3;S.sat-=V*0.3;H("طوارئ صحية وغذائية");}}
+else if(id==="amnesty"){if(i===0){S.sat+=V*0.6;S.crime+=V*0.4;H("عفو عام شامل");}else{S.sat+=V*0.4;S.crime+=V*0.1;S.court="مؤيدة";H("عفو مشروط");}}
+else if(id==="stadium"){if(i===0){S.sat+=V*0.6;S.res-=V*0.12;S.reg+=2;S.unemp-=V*0.1;H("ملعب أولمبي وطني");}else{S.sat+=V*0.4;S.res-=V*0.05;S.regs.forEach(r=>r.h+=V*0.2);H("ملاعب أحياء شعبية");}}
+else if(id==="water"){if(i===0){S.food+=V;S.energy-=V*0.2;S.res-=V*0.12;S.regs[2].h+=V*0.7;H("محطة تحلية كبرى");}else{S.food+=V*0.5;S.res-=V*0.05;S.regs[2].h+=V*0.4;S.regs[4].h+=V*0.3;H("سدود صغيرة");}}
+const fund=(document.getElementById("m_fund")||{}).value||"";const over=(document.getElementById("m_over")||{}).value||"";
+if(fund==="قرض تنموي"){S.debt+=V*0.08;S.res+=V*0.05;log("تمويل بقرض تنموي");}
+else if(fund==="شريك خاص"){S.res+=V*0.04;S.gdp+=V*0.05;log("شريك خاص يشارك التمويل");}
+if(over==="تدقيق لاحق"){S.coal+=1;S.res-=V*0.01;log("تدقيق لاحق يعزز الثقة");}
+["m_e1","m_e2"].forEach(eid=>{const el=document.getElementById(eid);if(!el||!el.value||!MX[id])return;const ps=el.value.split("|").slice(1);applyFx(ps);log("⚙️ "+el.value.split("|")[0]);});
+saveAuto();closeM();render();}
+function mCost2(id){const r=document.getElementById("m_r");const v=r?+r.value:5;const c=document.getElementById("m_cost");const fx=document.getElementById("m_fx");if(c)c.textContent="$"+(v*80)+"M — "+(v>=7?"شامل":v>=4?"متوسط":"محدود");if(fx){const a=document.getElementById("m_a");const b=document.getElementById("m_b");fx.textContent=(a?("خيار: "+a.value+" | "):"")+(b?("قرار: "+b.value):"أثر حسب الحجم");}}
+function mCost(id){mCost2(id);}
+function mExtra(id,k){if(k==="study"){S.res-=0.05;log("دراسة جدوى قبل التنفيذ (-$50M)");toast("دراسة جدوى: -مخاطر مستقبلية");}if(k==="pilot"){S.sat+=1;log("تجربة مصغرة ناجحة");toast("تجربة مصغرة +رضا");}if(k==="partner"){S.res+=0.1;log("شريك خاص يخفض الكلفة");toast("شريك خاص +تمويل");}if(k==="audit"){S.coal+=1;log("تدقيق يعزز الثقة");toast("تدقيق +ثقة");}render();}
+function mConfirm(id){const v=+document.getElementById("m_r").value;const pace=(document.getElementById("m_pace")||{}).value||"فوري";const scope=(document.getElementById("m_b")&&document.getElementById("m_b").tagName==="SELECT"&&/الدولة|العاصمة|الأقاليم|الريف/.test(document.getElementById("m_b").value))?document.getElementById("m_b").value:"كل الدولة";const mult=pace.startsWith("فوري")?1.25:0.8;const vv=Math.round(v*mult);S._mx={a:document.getElementById("m_a")?document.getElementById("m_a").value:"",b:document.getElementById("m_b")?document.getElementById("m_b").value:"",c:document.getElementById("m_c")?document.getElementById("m_c").value:""};applyScaled(id,vv,scope);["m_e1","m_e2"].forEach(eid=>{const el=document.getElementById(eid);if(!el||!el.value||!MX[id])return;const ps=el.value.split("|").slice(1);applyFx(ps);log("⚙️ "+el.value.split("|")[0]);});saveAuto();closeM();}
+function openParty(p){S._mp=p;if(!Array.isArray(S.coalition))S.coalition=["المحافظون","الليبراليون"];const box=document.getElementById("mBox");const inC=S.coalition.includes(p);
+box.innerHTML=`<button class="x" onclick="closeM()">✕</button><h2>🏛️ الحزب: ${p}</h2><div class="sub">مقاعد: ${S.parl[p]} | الرضا: ${S.partySat[p]}% | الحالة: ${inC?"داخل الائتلاف":"خارج الائتلاف"}</div>
+<div class="msec"><h4>📊 وضع الحزب</h4><div class="kv"><span>المقاعد</span><b>${S.parl[p]}</b></div><div class="kv"><span>الرضا عن الحكومة</span><b>${S.partySat[p]}%</b></div><div class="kv"><span>الائتلاف</span><b>${inC?"عضو":"معارضة"}</b></div><div class="kv"><span>خطر الانسحاب</span><b>${S.partySat[p]<30?"مرتفع جداً!":"منخفض"}</b></div></div>
+<div class="msec"><h4>🎛️ تحكمات واقعية</h4><div class="row">
+<button class="btn p" onclick="pAct('appease')">💝 إرضاء الحزب (+رضا)</button>
+<button class="btn" onclick="pAct('marginalize')">📉 تهميش الحزب (-مقاعد)</button>
+${inC?`<button class="btn r" onclick="pAct('expelCoal')">🚪 إخراج من الائتلاف</button>`:`<button class="btn gold" onclick="pAct('joinCoal')">➕ ضم للائتلاف</button>`}
+<button class="btn p" onclick="pAct('bribeMP')">💼 رشوة نواب (+مقعد)</button>
+<button class="btn p" onclick="pAct('mediaCampaign')">📣 حملة لصالحه</button>
+<button class="btn r" onclick="pAct('investigate')">🔍 تحقيق ضده</button>
+<button class="btn p" onclick="pAct('fund')">💰 تمويل سري</button>
+<button class="btn p" onclick="pAct('summit')">🤝 قمة قيادات</button>
+</div></div>
+<div class="mrow"><button class="btn" onclick="closeM()">إغلاق</button></div>`;
+document.getElementById("mOv").classList.add("show");document.body.style.overflow="hidden";}
+function pAct(k){const p=S._mp;if(!p)return;const done=(t)=>{log(t);toast(t);render();};
+if(k==="appease"){S.res-=0.15;S.partySat[p]+=10;S.coal+=1;done("إرضاء "+p);}
+if(k==="marginalize"){S.partySat[p]-=12;S.parl[p]=Math.max(2,S.parl[p]-3);S.coal-=2;done("تهميش "+p);}
+if(k==="joinCoal"){if(!S.coalition.includes(p)){S.coalition.push(p);S.coal+=8;S.partySat[p]+=5;done("ضم "+p+" للائتلاف");openParty(p);}else toast("موجود");}
+if(k==="expelCoal"){const i=S.coalition.indexOf(p);if(i>=0){S.coalition.splice(i,1);S.coal-=8;S.partySat[p]-=8;done("إخراج "+p);openParty(p);}}
+if(k==="bribeMP"){S.res-=0.2;S.partySat[p]+=6;S.parl[p]+=1;done("رشوة نواب "+p);}
+if(k==="mediaCampaign"){S.res-=0.1;S.partySat[p]+=8;done("حملة لصالح "+p);}
+if(k==="investigate"){S.partySat[p]-=8;S.court="معارضة";done("تحقيق ضد "+p);}
+if(k==="fund"){S.res-=0.25;S.partySat[p]+=12;S.coal+=2;done("تمويل سري "+p);}
+if(k==="summit"){S.coal+=3;S.partySat[p]+=4;done("قمة مع "+p);}render();}
+function closeM(){document.getElementById("mOv").classList.remove("show");document.body.style.overflow="";}
+function applyScaled(id,v,scope){const k=v/5;const H=(t)=>{log(t+" ["+scope+"، حجم "+v+"]");toast(t);};
+const scoped=(fn)=>{if(scope==="العاصمة فقط"){S.regs[0].h+=v;}else if(scope==="الريف فقط"){S.regs[2].h+=v;}else if(scope==="الأقاليم"){S.regs.forEach(r=>r.h+=v*0.4);}else{S.regs.forEach(r=>r.h+=v*0.25);}if(fn)fn();};
+switch(id){
+case "energyDeal":S.energy+=v*1.6;S.res-=v*0.06;S.gdp+=v*0.06;scoped();H("صفقة طاقة");break;
+case "grainDeal":S.food+=v*1.6;S.res-=v*0.05;scoped();H("استيراد قمح");break;
+case "techPark":S.tech+=v*1.4;S.res-=v*0.08;S.gdp+=v*0.12;S.west+=1;scoped();H("مدينة تقنية");break;
+case "parade":S.loyal+=v*0.6;S.sat+=v*0.4;S.west-=1;scoped();H("عرض عسكري");break;
+case "festival":S.sat+=v*0.6;S.res-=v*0.04;S.culture+=1;H("مهرجان وطني");break;
+case "curfew":S.crime-=v*0.8;S.sat-=v*0.4;S.revolt+=v*0.2;H("حظر تجول");break;
+case "minWage":S.sat+=v*0.6;S.infl+=v*0.1;S.wages+=v*8;H("رفع الأجور");break;
+case "jobs":S.unemp-=v*0.4;S.res-=v*0.06;S.gdp+=v*0.08;H("توظيف شباب");break;
+case "emergency":S.revolt-=v*1.4;S.sat-=v*0.6;S.court="معارضة";H("طوارئ");break;
+case "amnesty":S.sat+=v*0.5;S.crime+=v*0.3;H("عفو عام");break;
+case "stadium":S.sat+=v*0.5;S.res-=v*0.06;S.reg+=1;scoped();H("ملعب وطني");break;
+case "water":S.food+=v*0.8;S.res-=v*0.07;S.regs[2].h+=v*0.6;H("تحلية مياه");break;
+case "coalTalk":S.coal+=v*1.2;Object.keys(S.partySat).forEach(p=>S.partySat[p]+=v*0.4);S.res-=v*0.02;H("مفاوضات ائتلافية");break;
+case "proposeLaw":if(totalSeats()>=50){S.sat+=v*0.3;S.coal+=v*0.4;H("قانون أُقر");}else{S.coal-=3;toast("فشل: لا أغلبية 51");}break;
+case "amend":if(totalSeats()>=67){S.court="مؤيدة";S.sat+=1;H("تعديل دستوري");}else{S.court="معارضة";S.coal-=3;toast("فشل: تحتاج 67");}break;
+case "earlyElec":shuffleParl();H("انتخابات مبكرة");break;
+case "buyMP":S.res-=v*0.05;S.coal+=v;H("استمالة نواب");break;
+case "referendum":S.sat+=v*0.5;S.coal+=v*0.3;H("استفتاء");break;
+case "courtReform":S.court="مؤيدة";S.sat+=v*0.2;S.west+=1;H("إصلاح قضائي");break;
+case "banParty":S.partySat["اليمين"]-=v;S.coal-=2;S.sat-=1;H("حل حزب");break;
+case "reshuffle":S.coal+=v*0.6;S.sat+=v*0.2;H("تعديل وزاري");break;
+case "autocratic":S.coup+=8;S.revolt+=6;S.sat-=6;S.coal=20;H("إعلان استبدادي!");break;
+case "antiCorrGov":S.court="مؤيدة";S.sat+=v*0.3;S.budget+=v*4;H("نزاهة");break;
+case "eGov":S.tech+=v*0.5;S.sat+=v*0.3;S.res-=v*0.03;H("حكومة إلكترونية");break;
+case "decent":S.regs.forEach(r=>r.h+=v*0.4);S.revolt-=v*0.5;S.sat+=v*0.2;H("لامركزية");break;
+case "civilServ":S.sat+=v*0.2;S.coal+=v*0.2;H("خدمة مدنية");break;
+case "stimulus":S.res-=v*0.1;S.gdp+=v*0.3;S.unemp-=v*0.3;S.infl+=v*0.12;scoped();H("تحفيز");break;
+case "privatize":S.res+=v*0.2;S.gdp+=v*0.12;S.partySat["اليسار"]-=v*0.5;H("خصخصة");break;
+case "austerity":S.res+=v*0.08;S.sat-=v*0.5;S.infl-=v*0.12;H("تقشف");break;
+case "payDebt":if(S.res>v*0.3){S.res-=v*0.3;S.debt-=v*0.3;H("سداد دين");}else toast("لا احتياطي!");break;
+case "sovereign":S.res-=v*0.08;S.gdp+=v*0.08;H("صندوق سيادي");break;
+case "tourism":S.res+=v*0.04;S.gdp+=v*0.08;S.sat+=v*0.3;H("سياحة");break;
+case "printMoney":S.res+=v*0.12;S.infl+=v*0.4;S.sat-=v*0.3;S.currency-=v;H("طبع نقود: تضخم!");break;
+case "tradeZone":S.gdp+=v*0.12;S.customs+=v*0.2;scoped();H("منطقة حرة");break;
+case "agriBank":S.food+=v*0.8;S.regs[2].h+=v*0.5;H("بنك زراعي");break;
+case "oilFund":S.res+=v*0.1;S.energy+=v*0.8;H("مزاد طاقة");break;
+case "ruralFund":S.res-=v*0.07;S.revolt-=v;S.food+=v*0.8;S.regs[2].h+=v;S.regs[2].dev+=v*0.5;H("صندوق ريفي");break;
+case "hospital":S.res-=v*0.05;S.regs[5].h+=v*0.5;S.sat+=v*0.3;scoped();H("مستشفيات");break;
+case "roads":S.res-=v*0.06;S.regs.forEach(r=>{r.h+=v*0.4;r.inf+=v*0.5;});S.gdp+=v*0.1;S.unemp-=v*0.2;H("طرق");break;
+case "capitalProj":S.res-=v*0.12;S.regs[0].h+=v;S.regs[0].eco+=v*0.5;S.gdp+=v*0.15;S.unemp-=v*0.2;S.infl+=v*0.05;H("مشروع العاصمة");break;
+case "crackdown":S.revolt-=v*0.8;S.sat-=v*0.4;S.court="معارضة";scoped();H("حملة أمنية");break;
+case "electrify":S.res-=v*0.05;S.energy+=v*0.8;S.regs[4].h+=v*0.4;H("كهربة");break;
+case "schools":S.res-=v*0.04;S.tech+=v*0.3;S.regs[5].h+=v*0.3;scoped();H("مدارس");break;
+case "policeSt":S.crime-=v*0.6;S.revolt-=v*0.2;S.regs.forEach(r=>r.sec+=v*0.3);H("مراكز شرطة");break;
+case "factZone":S.res-=v*0.09;S.gdp+=v*0.15;S.unemp-=v*0.25;S.regs[1].h+=v*0.5;S.regs[1].eco+=v;H("منطقة صناعية");break;
+case "spy":if(chance([40,60,85][S.intelEff]+v*2)){S.coal+=v*0.3;S.intelRep="تنصت ناجح";H("تنصت ناجح");}else{S.sat-=v*0.4;S.intelRep="فضيحة تسريب!";toast("فشل التنصت");}break;
+case "fabricate":if(chance([40,60,85][S.intelEff])){S.coal+=v*0.4;H("تقييد معارضة");}else{S.sat-=v*0.5;S.coal-=2;toast("انكشاف");}break;
+case "anticorr":S.res+=v*0.03;S.court="مؤيدة";S.sat+=v*0.2;H("تطهير فساد");break;
+case "counterCoup":S.coup-=v*0.9;S.loyal+=v*0.3;H("منع انقلاب");break;
+case "cyber":S.tech+=v*0.3;S.surv+=v*0.5;H("دفاع سيبراني");break;
+case "border":S.crime-=v*0.3;S.revolt-=v*0.2;H("ضبط حدود");break;
+case "cams":S.crime-=v*0.4;S.sat-=v*0.1;H("كاميرات");break;
+case "doubleAgent":if(chance(50+v*3)){S.coup-=v*0.5;H("عميل مزدوج");}else toast("انكشف");break;
+case "arrest":S.revolt-=v*0.5;S.sat-=v*0.4;S.court="معارضة";H("اعتقالات");break;
+case "whistle":S.sat+=v*0.2;S.court="مؤيدة";H("حماية مبلّغين");break;
+case "raiseArmy":S.res-=v*0.04;S.loyal+=v*0.8;S.coup-=v*0.7;H("رواتب جيش");break;
+case "drills":S.armyEff+=v*0.7;S.res-=v*0.02;H("مناورات");break;
+case "honor":S.loyal+=v*0.5;S.coup-=v*0.4;H("تكريم");break;
+case "cutArmy":S.loyal-=v;S.coup+=v;S.res+=v*0.05;H("خفض دفاع: خطر!");break;
+case "conscript":S.armyEff+=v*0.3;S.unemp-=v*0.1;S.sat-=v*0.2;H("تجنيد");break;
+case "airforce":S.res-=v*0.05;S.armyEff+=v*0.5;H("سلاح جو");break;
+case "navy":S.res-=v*0.06;S.armyEff+=v*0.4;S.reg+=1;H("بحرية");break;
+case "missiles":S.res-=v*0.07;S.armyEff+=v*0.7;S.coup-=v*0.2;H("صواريخ");break;
+case "milInd":S.res-=v*0.06;S.armyEff+=v*0.4;S.gdp+=v*0.06;H("تصنيع عسكري");break;
+case "veterans":S.loyal+=v*0.4;S.sat+=v*0.2;H("قدامى");break;
+case "purge":S.coup-=v*0.6;S.loyal-=v*0.5;S.armyEff-=v*0.2;H("تطهير");break;
+case "press":S.sat+=v*0.3;H("مؤتمر صحفي");break;
+case "digital":S.res-=v*0.04;S.tech+=v*0.7;H("استثمار رقمي");break;
+case "cinema":S.sat+=v*0.2;S.culture+=v*0.3;H("سينما");break;
+case "socialReg":S.surv+=v;S.sat-=v*0.1;H("تنظيم سوشيال");break;
+case "shutdown":S.sat-=v*0.5;S.revolt+=v*0.2;S.tech-=v*0.2;H("قطع إنترنت");break;
+case "satellite":S.res-=v*0.04;S.tech+=v*0.5;H("قمر إعلامي");break;
+case "propaganda":S.sat+=v*0.3;S.tech-=v*0.1;H("بروباغندا");break;
+case "freePress":S.west+=v*0.5;S.sat+=v*0.1;H("حرية صحافة");break;
+case "relLaw":S.culture-=v;S.partySat["المحافظون"]+=v*0.7;S.partySat["الليبراليون"]-=v*0.4;H("قانون ديني");break;
+case "libLaw":S.culture+=v;S.partySat["الليبراليون"]+=v*0.7;S.partySat["المحافظون"]-=v*0.4;H("حريات");break;
+case "edu":S.tech+=v*0.4;S.sat+=v*0.1;H("مناهج");break;
+case "clerics":S.culture-=v*0.5;S.partySat["المحافظون"]+=v*0.5;H("مجلس علماء");break;
+case "youth":S.culture+=v*0.5;S.partySat["الليبراليون"]+=v*0.5;H("برلمان شباب");break;
+case "heritage":S.sat+=v*0.2;S.reg+=v*0.2;H("تراث");break;
+case "sportN":S.sat+=v*0.3;H("رياضة");break;
+case "censor":S.sat-=v*0.2;S.partySat["المحافظون"]+=v*0.3;H("رقابة فنية");break;
+case "westLoan":S.res+=v*0.3;S.debt+=v*0.35;S.west+=v;S.media=0;H("قرض غربي");break;
+case "eastArms":S.energy+=v;S.armyEff+=v*0.4;S.east+=v;S.west-=v*0.5;H("صفقة شرقية");break;
+case "regPact":S.reg+=v;S.raw+=v*0.5;H("ميثاق إقليمي");break;
+case "neutral":S.west+=2;S.east+=2;S.reg+=2;H("حياد");break;
+case "embassy":S.west+=v*0.3;S.east+=v*0.3;S.reg+=v*0.3;H("سفارات");break;
+case "tradeW":S.gdp+=v*0.08;S.west+=v*0.4;H("تجارة غربية");break;
+case "tradeE":S.gdp+=v*0.08;S.east+=v*0.4;H("تجارة شرقية");break;
+case "sanction":S.west-=v*0.5;S.sat+=v*0.1;H("عقوبات");break;
+case "unVote":S.west+=2;S.reg+=2;H("تصويت أممي");break;
+case "aid":S.sat+=v*0.1;S.reg+=v*0.3;S.res-=v*0.02;H("مساعدات");break;
+default:H("قرار "+id);
+}
+render();}
+const MA=["جفاف يضرب الغذاء","نزوح نحو العاصمة","إضراب عمالي"],MB=["تسريب فساد","اجتماع ضباط","هجمة معارضة"];
+function nextMonth(auto){S.month++;if(S.month>12){S.month=1;S.year++;log("عام جديد "+S.year);}
+const rev=S.gdp*1000*(S.tax/100)*0.12+S.gdp*8;const spend=S.wages+S.infra+S.health+S.rural+S.def+S.intelB+S.esub+S.fsub+S.admin+S.export;
+S.budget=Math.round(rev-spend);S.res=Math.round((S.res+S.budget/1000)*10)/10;
+if(S.budget<0){S.debt+=0.4;S.infl+=0.4;}
+S.infl=Math.max(1,S.infl+(Math.random()-0.5));S.unemp=Math.max(3,Math.min(30,S.unemp+(Math.random()-0.5)-(S.infra>250?0.4:0)));
+S.gdp=Math.max(10,S.gdp+0.2+(Math.random()-0.4));
+S.currency=Math.max(20,Math.min(200,S.currency+(S.infl>10?-1:S.res>10?0.5:0)+(Math.random()-0.5)));
+S.pop=Math.round((S.pop+0.01)*10)/10;
+if(S.rural<80){S.revolt+=3;S.food-=3;}else{S.revolt-=2;S.food+=2;}
+if(S.def<250){S.coup+=4;S.loyal-=3;}
+S.eventA=MA[Math.floor(Math.random()*3)];S.eventB=MB[Math.floor(Math.random()*3)];
+Object.keys(S.partySat).forEach(p=>{S.partySat[p]+=Math.floor(Math.random()*5-2);S.partySat[p]=Math.max(5,Math.min(95,S.partySat[p]));});
+if(S.revolt>35)log("تحذير تمرد!");if(S.coup>35)log("تحذير انقلاب!");
+log((auto?"[تلقائي] ":"")+"انتهاء الشهر: $"+S.budget+"M");render();saveAuto();}
+const MAPMODES=[["dev","🏗️ التنمية","mm-dev","التنمية الشاملة لكل إقليم"],["unrest","🔥 الاضطراب","mm-unr","عكس التمرد: الأحمر = مضطرب"],["loy","❤️ الولاء","mm-loy","ولاء الإقليم للحكومة"],["sec","🛡️ الأمن","mm-sec","مستوى الأمن والشرطة"],["pop","👥 السكان","mm-pop","الكثافة السكانية"],["eco","💰 الاقتصاد","mm-eco","النشاط الاقتصادي"],["inf","🛣️ البنية","mm-inf","الطرق والخدمات"]];
+const MODECOLORS={dev:["#274a63","#3d6a8a","#5a8aaa","#7aa7c7"],unr:["#5a2a2a","#8a3d3d","#a25a5a","#c27a7a"],loy:["#4a3a5a","#7a5a8a","#9a7aaa","#b59ac7"],sec:["#2a4a44","#3d7a72","#5a9a90","#7ab5ac"],pop:["#4a3d2a","#8a6a3d","#a5854a","#c7a55a"],eco:["#2a4a32","#3d7a4a","#5a9a62","#7ab57e"],inf:["#3a3a4a","#5a5a8a","#7a7aaa","#9a9ac7"]};
+function modeVal(r){if(mapMode==="dev")return r.dev;if(mapMode==="unrest")return 100-S.revolt;if(mapMode==="loy")return r.loy;if(mapMode==="sec")return r.sec;if(mapMode==="pop")return Math.min(100,r.eco*0.4+50);if(mapMode==="eco")return r.eco;if(mapMode==="inf")return r.inf;return r.h;}
+function modeCol(v){const pal=MODECOLORS[mapMode]||MODECOLORS.dev;if(v>=70)return pal[3];if(v>=50)return pal[2];if(v>=30)return pal[1];return pal[0];}
+function render(){
+clamp();
+document.getElementById("tName").textContent=`${S.name} — ${S.leader}`;
+document.getElementById("tSub").textContent=`${S.gov} | ${S.focus} | ${S.geo}`;
+document.getElementById("tRes").textContent=`$${S.res.toFixed(1)}B`;
+document.getElementById("tSat").textContent=`${S.sat}%`;
+document.getElementById("tDate").textContent=`📅 ${S.month}/${S.year} ${playing?"▶"+speed+"x":"⏸"}`;
+document.getElementById("topStats").innerHTML=[["👥 السكان",S.pop+"M"],["💼 البطالة",S.unemp+"%"],["🚨 الجريمة",S.crime+"%"],["💱 العملة",S.currency]].map(([a,b])=>`<span class="pill">${a}: <b>${b}</b></span>`).join("");
+document.getElementById("kpis").innerHTML=[["💰 الناتج","$"+S.gdp.toFixed(1)+"B"],["📈 التضخم",S.infl.toFixed(1)+"%"],["💵 الاحتياطي","$"+S.res.toFixed(1)+"B"],["📉 الدين","$"+S.debt.toFixed(1)+"B"],["⚠️ انقلاب",S.coup+"%"],["🔥 تمرد",S.revolt+"%"],["❤️ الرضا",S.sat+"%"],["🏦 الميزانية","$"+S.budget+"M"]].map(([a,b])=>`<div class="glass kpi"><b>${b}</b><span>${a}</span></div>`).join("");
+document.getElementById("resBars").innerHTML=`⚡ طاقة ${S.energy}%${bar(S.energy)}<br>🍞 غذاء ${S.food}%${bar(S.food)}<br>⛏️ مواد ${S.raw}%${bar(S.raw)}<br>💻 تقنية ${S.tech}%${bar(S.tech)}`;
+document.getElementById("events").innerHTML=`<div class="logitem evt">🔥 ${S.eventA}</div><div class="logitem evt">📢 ${S.eventB}</div>`;
+const home=[["🎖️","عرض عسكري","parade"],["🎉","مهرجان","festival"],["🌙","حظر تجول","curfew"],["💵","حد أدنى أجور","minWage"],["🏭","توظيف شباب","jobs"],["⚡","صفقة طاقة","energyDeal"],["🌾","قمح مستورد","grainDeal"],["💻","مدينة تقنية","techPark"],["🚨","طوارئ","emergency"],["🕊️","عفو عام","amnesty"],["🏟️","ملعب وطني","stadium"],["💧","تحلية مياه","water"]];
+document.getElementById("homeCtl").innerHTML="";home.forEach(([ic,t,a])=>{const b=document.createElement("button");b.className="btn p";b.innerHTML=`<i>${ic}</i>${t}`;b.onclick=()=>openM(a);document.getElementById("homeCtl").appendChild(b);});
+document.getElementById("pops").innerHTML=[["👷 عمال",62-S.unemp],["🌾 مزارعون",S.food-20],["🏢 وسطى",S.sat],["💼 أعمال",S.gdp],["👑 نخبة",S.coal]].map(([a,v])=>`<div style="margin:4px 0;font-size:.74rem">${a} ${Math.max(0,Math.min(100,Math.round(v)))}%${bar(Math.max(0,Math.min(100,v)))}</div>`).join("");
+document.getElementById("parl").innerHTML=`<table><tr><th>الحزب</th><th>مقاعد</th><th>رضا</th><th>ائتلاف</th><th>تحكم موسع</th></tr>`+Object.keys(S.parl).map(p=>`<tr><td>${p}</td><td>${S.parl[p]}</td><td>${S.partySat[p]}%</td><td>${S.coalition.includes(p)?'<span class="badge ok">داخل ✅</span>':'<span class="badge">خارج</span>'}</td><td><button class="btn p" style="padding:4px 8px;font-size:.66rem" onclick="openParty('${p}')">⚙️ تحكم</button></td></tr>`).join("")+`</table>`;
+const st=stab();document.getElementById("govInfo").innerHTML=`الحالة: <span class="badge ${st[1]}">${st[0]} (${S.coal}%)</span> — أصوات الائتلاف: <b>${totalSeats()}</b>/100<br>⚖️ المحكمة: <b>${S.court}</b><br><small style="color:var(--mut)">عادي 51+ — دستوري 67 — ائتلاف: ${S.coalition.join("، ")}</small>`;
+document.getElementById("focusBox").innerHTML=`الحالي: <b>${S.focus}</b>`;
+document.getElementById("focusSeg").innerHTML=FOCUS.map(f=>`<button class="${S.focus===f.t?'on':''}" onclick="setFocus('${f.id}')">${f.ic} ${f.t}</button>`).join("");
+const gov=[["🤝","مفاوضات","coalTalk"],["📜","قانون عادي","proposeLaw"],["⚖️","تعديل دستوري","amend"],["🗳️","انتخابات مبكرة","earlyElec"],["💼","استمالة نواب","buyMP"],["📮","استفتاء","referendum"],["🏛️","إصلاح قضاء","courtReform"],["⛔","حل حزب","banParty"],["🔄","تعديل وزاري","reshuffle"],["👑","استبدادي","autocratic"],["🧹","نزاهة","antiCorrGov"],["💻","حكومة إلكترونية","eGov"]];
+document.getElementById("govCtl").innerHTML="";gov.forEach(([ic,t,a])=>{const b=document.createElement("button");b.className="btn p";b.innerHTML=`<i>${ic}</i>${t}`;b.onclick=()=>openM(a);document.getElementById("govCtl").appendChild(b);});
+document.getElementById("ecoKpi").innerHTML=[["الناتج","$"+S.gdp.toFixed(1)+"B"],["الميزانية","$"+S.budget+"M"],["التضخم",S.infl.toFixed(1)+"%"],["البطالة",S.unemp+"%"]].map(([a,b])=>`<div class="glass kpi"><b>${b}</b><span>${a}</span></div>`).join("");
+const tot=S.wages+S.infra+S.health+S.rural+S.def+S.intelB;
+const pctM=(v)=>Math.round(v/tot*100);
+document.getElementById("taxSliders").innerHTML=
+`<label class="lbl">الضرائب <b>${S.tax}%</b></label><input type="range" min="5" max="40" value="${S.tax}" oninput="setEco('tax',this.value)">`+
+`<label class="lbl">الجمارك <b>${S.customs}%</b></label><input type="range" min="0" max="30" value="${S.customs}" oninput="setEco('customs',this.value)">`+
+`<label class="lbl">الدفاع — ${pctM(S.def)}% <b>$${S.def}M</b></label><input type="range" min="100" max="1400" value="${S.def}" oninput="setEco('def',this.value)">`+
+`<label class="lbl">الأجور — ${pctM(S.wages)}% <b>$${S.wages}M</b></label><input type="range" min="150" max="800" value="${S.wages}" oninput="setEco('wages',this.value)">`+
+`<label class="lbl">البنية — ${pctM(S.infra)}% <b>$${S.infra}M</b></label><input type="range" min="0" max="600" value="${S.infra}" oninput="setEco('infra',this.value)">`+
+`<label class="lbl">الصحة — ${pctM(S.health)}% <b>$${S.health}M</b></label><input type="range" min="0" max="600" value="${S.health}" oninput="setEco('health',this.value)">`+
+`<label class="lbl">الريفي — ${pctM(S.rural)}% <b>$${S.rural}M</b></label><input type="range" min="0" max="500" value="${S.rural}" oninput="setEco('rural',this.value)">`+
+`<label class="lbl">الإنفاق الكلي <b>$${tot}M</b></label>`;
+document.getElementById("treasury").innerHTML=`الاحتياطي <b>$${S.res.toFixed(1)}B</b> — الدين <b>$${S.debt.toFixed(1)}B</b> — الشهري <b>$${S.budget}M</b>${bar(Math.min(100,S.res*8))}`;
+const eco=[["📈","تحفيز","stimulus"],["🏭","خصخصة","privatize"],["📉","تقشف","austerity"],["💳","سداد دين","payDebt"],["🏦","صندوق سيادي","sovereign"],["✈️","سياحة","tourism"],["🖨️","طبع نقود","printMoney"],["🚢","منطقة حرة","tradeZone"],["🌾","بنك زراعي","agriBank"],["🛢️","مزاد طاقة","oilFund"]];
+document.getElementById("ecoCtl").innerHTML="";eco.forEach(([ic,t,a])=>{const b=document.createElement("button");b.className="btn p";b.innerHTML=`<i>${ic}</i>${t}`;b.onclick=()=>openM(a);document.getElementById("ecoCtl").appendChild(b);});
+document.getElementById("budgetAlloc").innerHTML=`دفاع ${pctM(S.def)}% ($${S.def}M) | أجور ${pctM(S.wages)}% ($${S.wages}M) | بنية ${pctM(S.infra)}% ($${S.infra}M) | صحة ${pctM(S.health)}% ($${S.health}M) | ريفي ${pctM(S.rural)}% ($${S.rural}M) | مخابرات ${pctM(S.intelB)}% ($${S.intelB}M)`;
+document.getElementById("mapModes").innerHTML=MAPMODES.map(([m,t,c])=>`<button class="${c} ${mapMode===m?'on':''}" onclick="setMapMode('${m}')">${t}</button>`).join("");
+const mmInfo=MAPMODES.find(m=>m[0]===mapMode);
+document.getElementById("mapLegend").textContent=`الوضع: ${mmInfo[1]} — ${mmInfo[3]}. الغامق = أعلى قيمة.`;
+document.querySelectorAll("#mapSvg .zone").forEach(z=>{const i=+z.dataset.r;const v=modeVal(S.regs[i]);z.setAttribute("fill",modeCol(v));z.classList.toggle("sel",i===S.selReg);z.onclick=()=>{S.selReg=i;render();};});
+const R=S.regs[S.selReg];
+document.getElementById("regDetail").innerHTML=`<h2 class="sec">📍 ${R.n} — ${R.p}</h2><b style="font-size:1.4rem">${R.h}%</b>${bar(R.h)}<p style="color:var(--mut);font-size:.72rem">اقتصاد ${R.eco}% | أمن ${R.sec}% | ولاء ${R.loy}% | تنمية ${R.dev}% | بنية ${R.inf}%</p><div class="ctl">
+<button class="btn p" onclick="openM('ruralFund')"><i>💰</i>استثمار</button>
+<button class="btn p" onclick="openM('schools')"><i>🏫</i>مدرسة</button>
+<button class="btn p" onclick="openM('hospital')"><i>🏥</i>عيادة</button>
+<button class="btn p" onclick="openM('policeSt')"><i>👮</i>أمن</button>
+<button class="btn p" onclick="openM('factZone')"><i>🏭</i>مصنع</button>
+<button class="btn r" onclick="openM('crackdown')"><i>🚔</i>قمع</button>
+<button class="btn p" onclick="openM('electrify')"><i>🔌</i>كهرباء</button>
+<button class="btn p" onclick="openM('water')"><i>💧</i>مياه</button>
+</div>`;
+const reg=[["🌾","صندوق ريفي","ruralFund"],["🏥","مستشفيات","hospital"],["🛣️","طرق","roads"],["🏙️","مشروع العاصمة","capitalProj"],["🚔","حملة أمنية","crackdown"],["🔌","كهربة","electrify"],["🏫","مدارس","schools"],["👮","مراكز شرطة","policeSt"],["🏭","منطقة صناعية","factZone"],["💧","سدود ومياه","water"]];
+document.getElementById("regCtl").innerHTML="";reg.forEach(([ic,t,a])=>{const b=document.createElement("button");b.className="btn p";b.innerHTML=`<i>${ic}</i>${t}`;b.onclick=()=>openM(a);document.getElementById("regCtl").appendChild(b);});
+document.getElementById("intelBox").innerHTML=`الكفاءة: <b>${["ضعيفة 40%","متوسطة 60%","احترافية 85%"][S.intelEff]}</b> — الميزانية <b>$${S.intelB}M (${pctM(S.intelB)}%)</b>`;
+document.getElementById("intelBVal").textContent="$"+S.intelB+"M";document.getElementById("intelBudget").value=S.intelB;
+document.getElementById("v_surv").textContent=S.surv+"%";document.getElementById("r_surv").value=S.surv;
+document.getElementById("intelReport").innerHTML=`<div class="logitem">🕵️ ${S.intelRep||"مراقبة نشطة"}</div>`;
+const sec=[["👁️","تنصت","spy"],["🎭","فبركة","fabricate"],["🧹","تطهير فساد","anticorr"],["🛡️","منع انقلاب","counterCoup"],["💻","دفاع سيبراني","cyber"],["🧱","ضبط حدود","border"],["📷","كاميرات","cams"],["🕶️","عميل مزدوج","doubleAgent"],["⛓️","اعتقالات","arrest"],["📢","حماية مبلّغين","whistle"]];
+document.getElementById("secCtl").innerHTML="";sec.forEach(([ic,t,a])=>{const b=document.createElement("button");b.className="btn p";b.innerHTML=`<i>${ic}</i>${t}`;b.onclick=()=>openM(a);document.getElementById("secCtl").appendChild(b);});
+document.getElementById("armyKpi").innerHTML=[["⚔️ الكفاءة",S.armyEff+"%"],["❤️ الولاء",S.loyal+"%"],["⚠️ الانقلاب",S.coup+"%"]].map(([a,b])=>`<div class="glass kpi"><b>${b}</b><span>${a}</span></div>`).join("");
+document.getElementById("defVal").textContent="$"+S.def+"M ("+pctM(S.def)+"%)";document.getElementById("defBudget").value=S.def;
+document.getElementById("v_consc").textContent=S.consc+"%";document.getElementById("r_consc").value=S.consc;
+const army=[["💰","رواتب","raiseArmy"],["🎯","مناورات","drills"],["🎖️","تكريم","honor"],["✂️","خفض","cutArmy"],["🪖","تجنيد","conscript"],["✈️","سلاح جو","airforce"],["🚢","بحرية","navy"],["🚀","صواريخ","missiles"],["🏭","تصنيع عسكري","milInd"],["🧓","قدامى","veterans"],["⚡","تطهير","purge"],["🎺","عرض","parade"]];
+document.getElementById("armyCtl").innerHTML="";army.forEach(([ic,t,a])=>{const b=document.createElement("button");b.className="btn p";b.innerHTML=`<i>${ic}</i>${t}`;b.onclick=()=>openM(a);document.getElementById("armyCtl").appendChild(b);});
+document.getElementById("cultRange").value=S.culture;
+const MN=["حر بالكامل","مجزأ","موجه من الدولة","رقابة صارمة"];
+document.getElementById("mediaSeg").innerHTML=MN.map((m,i)=>`<button class="${S.media===i?'on':''}" onclick="setMedia(${i})">${m}</button>`).join("");
+const media=[["🎤","مؤتمر","press"],["🌐","استثمار رقمي","digital"],["🎬","سينما","cinema"],["📱","سوشيال","socialReg"],["🔌","قطع إنترنت","shutdown"],["🛰️","قمر إعلامي","satellite"],["📣","بروباغندا","propaganda"],["📰","حرية صحافة","freePress"]];
+document.getElementById("mediaCtl").innerHTML="";media.forEach(([ic,t,a])=>{const b=document.createElement("button");b.className="btn p";b.innerHTML=`<i>${ic}</i>${t}`;b.onclick=()=>openM(a);document.getElementById("mediaCtl").appendChild(b);});
+const cult=[["🕌","قانون ديني","relLaw"],["🕊️","حريات","libLaw"],["📚","مناهج","edu"],["🧔","مجلس علماء","clerics"],["🧒","برلمان شباب","youth"],["🏺","تراث","heritage"],["⚽","رياضة","sportN"],["🚫","رقابة","censor"]];
+document.getElementById("cultCtl").innerHTML="";cult.forEach(([ic,t,a])=>{const b=document.createElement("button");b.className="btn p";b.innerHTML=`<i>${ic}</i>${t}`;b.onclick=()=>openM(a);document.getElementById("cultCtl").appendChild(b);});
+document.getElementById("cultInfo").innerHTML=`التوتر: <b>${S.culture}</b>/100`;
+document.getElementById("diploKpi").innerHTML=[["🇺🇸 الغرب",S.west],["🇨🇳 الشرق",S.east],["🤝 الإقليم",S.reg]].map(([a,b])=>`<div class="glass kpi"><b>${b}</b><span>${a}</span>${bar(b)}</div>`).join("");
+const diplo=[["🇺🇸","قرض غربي","westLoan"],["🇨🇳","صفقة شرقية","eastArms"],["🤝","ميثاق إقليمي","regPact"],["⚖️","حياد","neutral"],["🏛️","سفارات","embassy"],["📦","تجارة غربية","tradeW"],["🚂","تجارة شرقية","tradeE"],["🚫","عقوبات","sanction"],["🌐","تصويت أممي","unVote"],["🎁","مساعدات","aid"]];
+document.getElementById("diploCtl").innerHTML="";diplo.forEach(([ic,t,a])=>{const b=document.createElement("button");b.className="btn p";b.innerHTML=`<i>${ic}</i>${t}`;b.onclick=()=>openM(a);document.getElementById("diploCtl").appendChild(b);});
+document.getElementById("diploInfo").innerHTML=`<small style="color:var(--mut)">غرب ${S.west} — شرق ${S.east} — إقليم ${S.reg}</small>`;
+document.getElementById("fullLog").innerHTML=S.log.map(l=>`<div class="logitem">${l}</div>`).join("");
+}
+function sl(n,v,u,mn,mx,k){return `<label class="lbl">${n} <b>${v}${u}</b></label><input type="range" min="${mn}" max="${mx}" value="${v}" oninput="setEco('${k}',this.value)">`}
+/* ===== الحفظ التلقائي والسجلات ===== */
+const SAVE_KEY="state-sim-saves-v12";
+function getSaves(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||"{}")}catch(e){return{}}}
+function putSaves(o){try{localStorage.setItem(SAVE_KEY,JSON.stringify(o))}catch(e){}}
+function saveGame(manual){if(!S||!S.name)return;const all=getSaves();all[S.name]={t:Date.now(),month:S.month,year:S.year,gov:S.gov,focus:S.focus,sat:S.sat,res:S.res,state:S};putSaves(all);if(manual){toast("💾 تم حفظ "+S.name);log("حفظ اللعبة");}refreshSaves();}
+function saveAuto(){if(!S||!S.name)return;const all=getSaves();all[S.name]={t:Date.now(),month:S.month,year:S.year,gov:S.gov,focus:S.focus,sat:S.sat,res:S.res,state:S};putSaves(all);}
+function migrate(){if(!S||S.month==null)return;
+if(!Array.isArray(S.coalition))S.coalition=["المحافظون","الليبراليون"];
+const DS={"المحافظون":20,"الليبراليون":18,"اليسار":16,"القوميون":13,"اليمين":9,"الخضر":6,"التجمع المدني":3,"الوسط الديمقراطي":6,"الحركة العمالية":5,"الحزب التقدمي":4};
+if(!S.parl)S.parl={};if(!S.partySat)S.partySat={};
+Object.keys(DS).forEach(p=>{if(S.parl[p]==null){S.parl[p]=4;let big=null,bv=-1;Object.keys(S.parl).forEach(q=>{if(q!==p&&S.parl[q]>bv){bv=S.parl[q];big=q;}});if(big)S.parl[big]=Math.max(3,S.parl[big]-4);}if(S.partySat[p]==null)S.partySat[p]=35;});
+S.coalition=S.coalition.filter(p=>S.parl[p]!=null);
+const DR={eco:55,sec:50,loy:55,dev:55,inf:55,h:60};
+if(!Array.isArray(S.regs))S.regs=[];
+S.regs.forEach(r=>{Object.keys(DR).forEach(k=>{if(r[k]==null)r[k]=DR[k];});if(r.n==null)r.n="إقليم";if(r.p==null)r.p="1M";});
+[["pop",12.4],["currency",100],["crime",28],["surv",40],["consc",30],["admin",200],["rate",8],["export",100],["esub",80],["fsub",80]].forEach(([k,v])=>{if(S[k]==null)S[k]=v;});}
+function loadGame(name){const all=getSaves();const rec=all[name];if(!rec||!rec.state){toast("لا يوجد حفظ");return;}S=rec.state;migrate();document.getElementById("setupScreen").classList.add("hidden");document.getElementById("gameScreen").classList.remove("hidden");document.getElementById("dock").classList.remove("hidden");buildDock();show("home");setSpeed(1);render();toast("تم تحميل "+name);}
+function deleteSave(name){const all=getSaves();delete all[name];putSaves(all);refreshSaves();}
+function wipeSaves(){if(confirm("مسح كل السجلات؟")){putSaves({});refreshSaves();}}
+function refreshSaves(){const el=document.getElementById("savesList");if(!el)return;const all=getSaves();const keys=Object.keys(all);if(!keys.length){el.innerHTML=`<p style="color:var(--mut);font-size:.76rem">لا توجد دول محفوظة بعد — ابدأ دولتك الأولى وسيُحفظ تقدمك تلقائياً كل شهر.</p>`;return;}el.innerHTML=keys.map(k=>{const r=all[k];const d=new Date(r.t);return `<div class="logitem">🏛️ <b>${k}</b> — ${r.gov||""} | ${r.month}/${r.year} | رضا ${r.sat}% | احتياطي $${(+r.res).toFixed(1)}B<br><small style="color:var(--mut)">آخر حفظ: ${d.toLocaleString("ar")}</small><div class="row" style="margin-top:6px"><button class="btn p" onclick="loadGame('${k.replace(/'/g,"")}')">▶ متابعة اللعب</button><button class="btn r" onclick="deleteSave('${k.replace(/'/g,"")}')">🗑️ حذف</button></div></div>`}).join("");}
+pickGrid("geoGrid",GEOS,"geo");pickGrid("govGrid",GOVS,"gov");pickGrid("focusGrid",FOCUS,"focus");summary();refreshSaves();
+function updVw(){const e=document.getElementById("vw");if(e)e.textContent=window.innerWidth+"px";}
+window.addEventListener("resize",updVw);updVw();
+document.getElementById("sName").oninput=summary;
+</script>
+</body>
+</html>
